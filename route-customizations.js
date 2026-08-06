@@ -36,6 +36,11 @@
 
   const textReplacements = new Map([
     ["AK.REC", "TMANECAS"],
+    ["AK.", "TMANECAS"],
+    ["(+1) 213-555-0198", "FORTUNA RECORDS"],
+    ["725 Los Angeles, Suite 302", "SEMBA FROM LUANDA"],
+    ["Los Angeles, CA 90014", "ANGOLA TO THE WORLD"],
+    ["United States", "BOOKINGS WORLDWIDE"],
     ["AK Record", "FORTUNA RECORDS"],
     ["About", "Artist"],
     ["Service", "Music"],
@@ -112,6 +117,61 @@
     });
   }
 
+  // O wordmark do rodape e composto por duas partes: a grande diz "AK." e a
+  // pequena "RECORD". A home ja tratava disto no script embutido, mas as
+  // paginas internas usam so este ficheiro e ficavam com o nome do template.
+  // No rodape das paginas internas os icones do template apontam para
+  // youtube.com e instagram.com em bruto — quem clica sai do site e nao
+  // chega ao TMANECAS. O SoundCloud nem sequer devia estar ca.
+  const footerSocialByHost = [
+    [/soundcloud\.com/i, null, null],
+    [/youtube\.com/i, "YouTube", "https://www.youtube.com/@tmanecas"],
+    [/instagram\.com/i, "Instagram", "https://www.instagram.com/tmanecas_/"]
+  ];
+
+  function fixFooterSocials(root) {
+    root.querySelectorAll("a[href]").forEach((link) => {
+      const href = link.getAttribute("href") || "";
+      if (/@tmanecas|tmanecas_/.test(href)) return;
+      const match = footerSocialByHost.find(([pattern]) => pattern.test(href));
+      if (!match) return;
+      const [, label, destino] = match;
+      if (!destino) { link.remove(); return; }
+      link.setAttribute("href", destino);
+      link.setAttribute("target", "_blank");
+      link.setAttribute("rel", "noopener noreferrer");
+      link.setAttribute("aria-label", `TMANECAS on ${label}`);
+    });
+
+    // O Spotify ainda nao tem pagina do artista: fica visivel mas inerte,
+    // como ja acontece na pagina inicial.
+    root.querySelectorAll('a[href*="open.spotify.com"]').forEach((link) => {
+      if (link.dataset.tmanecasStreamingDisabled === "true") return;
+      link.dataset.tmanecasStreamingDisabled = "true";
+      link.removeAttribute("href");
+      link.removeAttribute("target");
+      link.setAttribute("aria-disabled", "true");
+      link.setAttribute("aria-label", "Spotify — coming soon");
+      link.classList.add("tmanecas-streaming-disabled");
+      link.addEventListener("click", (event) => event.preventDefault());
+    });
+  }
+
+  function fixFooterWordmark(root) {
+    root.querySelectorAll('[data-framer-name="Company Name"]').forEach((wordmark) => {
+      const partes = wordmark.querySelectorAll("svg");
+      const principal = partes[0];
+      const secundaria = partes[1];
+      const texto = principal?.querySelector("p");
+      if (texto && texto.textContent.trim() !== "TMANECAS") texto.textContent = "TMANECAS";
+      if (principal) {
+        principal.setAttribute("viewBox", "0 0 700 211");
+        principal.style.setProperty("width", "100%", "important");
+      }
+      if (secundaria) secundaria.style.setProperty("display", "none", "important");
+    });
+  }
+
   function updateHomeStatement(root) {
     root.querySelectorAll("p, h1, h2, h3").forEach((element) => {
       const text = element.textContent.replace(/\s+/g, " ").trim();
@@ -149,11 +209,11 @@
     if (route !== "releases") return;
     const kept = new Map([
       ["Heart Bulletproof", ["SAUDADE", "Longing becomes movement in a timeless Angolan rhythm carried by memory and soul."]],
-      ["Midnight Vandal", ["DANGEREUX", "A fearless Semba pulse shaped by desire, danger, and the unmistakable voice of TMANECAS."]],
+      ["Midnight Vandal", ["DANGEREUX feat RIKKA", "A fearless Semba pulse shaped by desire, danger, and the unmistakable voice of TMANECAS."]],
       ["Saudade", ["SAUDADE", "Longing becomes movement in a timeless Angolan rhythm carried by memory and soul."]],
-      ["DAGENREUX", ["DANGEREUX", "A fearless Semba pulse shaped by desire, danger, and the unmistakable voice of TMANECAS."]],
-      ["DANGEREX", ["DANGEREUX", "A fearless Semba pulse shaped by desire, danger, and the unmistakable voice of TMANECAS."]],
-      ["DANGEREUX", ["DANGEREUX", "A fearless Semba pulse shaped by desire, danger, and the unmistakable voice of TMANECAS."]],
+      ["DAGENREUX", ["DANGEREUX feat RIKKA", "A fearless Semba pulse shaped by desire, danger, and the unmistakable voice of TMANECAS."]],
+      ["DANGEREX", ["DANGEREUX feat RIKKA", "A fearless Semba pulse shaped by desire, danger, and the unmistakable voice of TMANECAS."]],
+      ["DANGEREUX", ["DANGEREUX feat RIKKA", "A fearless Semba pulse shaped by desire, danger, and the unmistakable voice of TMANECAS."]],
       ["SAUDADE", ["SAUDADE", "Longing becomes movement in a timeless Angolan rhythm carried by memory and soul."]]
     ]);
     const hidden = new Set(["My Rearview", "Pixel Tears"]);
@@ -169,12 +229,12 @@
       }
       const [newTitle, description] = kept.get(originalTitle);
       title.textContent = newTitle;
-      if (newTitle === "SAUDADE" || newTitle === "DANGEREUX") {
+      if (newTitle.startsWith("SAUDADE") || newTitle.startsWith("DANGEREUX")) {
         const image = anchor.querySelector("img");
         if (image) {
           image.removeAttribute("srcset");
           image.removeAttribute("sizes");
-          image.src = siteAsset(newTitle === "SAUDADE" ? "saudade.jpg" : "dangereux-work-II.jpg");
+          image.src = siteAsset(newTitle.startsWith("SAUDADE") ? "saudade.jpg" : "dangereux-work-II.jpg");
           image.alt = `TMANECAS — ${newTitle}`;
         }
       }
@@ -252,6 +312,8 @@
     updateText(document);
     updateMenuSocials(document);
     updateMenuSocialLinks(document);
+    fixFooterSocials(document);
+    fixFooterWordmark(document);
     updateHomeStatement(document);
     customizeMusic(document);
     customizeReleases(document);
