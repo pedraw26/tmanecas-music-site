@@ -394,25 +394,18 @@ Coaching</p></div></div></div><div class="framer-xmodkg" data-framer-name="Image
       }
 
       .tmanecas-hero-marquee__icon {
-        border: 2px solid rgba(255, 255, 255, .78);
-        border-radius: 50%;
+        background: url("./tmanecas-marquee-icon.svg") center / contain no-repeat;
         display: block;
+        filter: invert(1);
         flex: none;
-        height: clamp(42px, 4.1vw, 78px);
-        position: relative;
-        width: clamp(76px, 7.1vw, 136px);
+        height: clamp(58px, 5.5vw, 106px);
+        width: clamp(52px, 4.9vw, 95px);
       }
 
       .tmanecas-hero-marquee__icon::before,
       .tmanecas-hero-marquee__icon::after {
-        border: 2px solid rgba(255, 255, 255, .78);
-        border-radius: 50%;
-        content: "";
-        inset: -2px 20%;
-        position: absolute;
+        content: none;
       }
-
-      .tmanecas-hero-marquee__icon::after { inset: -2px 38%; }
 
       @keyframes tmanecasHeroMarquee {
         from { transform: translateX(0); }
@@ -712,7 +705,7 @@ Coaching</p></div></div></div><div class="framer-xmodkg" data-framer-name="Image
         .tmanecas-hero-marquee__phrase,
         .tmanecas-hero-marquee__name { font-size: clamp(52px, 14vw, 72px); }
         .tmanecas-hero-marquee__brand { gap: 15px; }
-        .tmanecas-hero-marquee__icon { height: 38px; width: 68px; }
+        .tmanecas-hero-marquee__icon { height: 58px; width: 52px; }
 
         footer[data-framer-name="Footer"] [data-framer-name="Page & Infomation"] > [data-framer-name="Right"] {
           align-items: flex-start !important;
