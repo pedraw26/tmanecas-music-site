@@ -50,3 +50,26 @@ a[href*="framer.com"] {
 .tmanecas-release-link-disabled svg {
   cursor: default !important;
 }
+
+/* Keep both release covers identical to the square DANGEREUX artwork. */
+body.tmanecas-releases-route .tmanecas-release-link-disabled [data-framer-name="Image box"] {
+  aspect-ratio: 1 / 1 !important;
+  flex: none !important;
+  height: auto !important;
+  overflow: hidden !important;
+  position: relative !important;
+  width: 100% !important;
+}
+
+body.tmanecas-releases-route .tmanecas-release-link-disabled [data-framer-name="Image box"] > div {
+  height: 100% !important;
+  inset: 0 !important;
+  position: absolute !important;
+  width: 100% !important;
+}
+
+body.tmanecas-releases-route .tmanecas-release-link-disabled [data-framer-name="Image box"] img {
+  height: 100% !important;
+  object-fit: cover !important;
+  width: 100% !important;
+}
