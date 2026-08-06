@@ -18,6 +18,7 @@
     <meta name="framer-search-index-fallback" content="https://framerusercontent.com/sites/1Kjex8SEmgHaR5iRKgdcmW/searchIndex-AVuq4kI0pXI1.json">
 <link href="./favicon.svg" rel="icon" type="image/svg+xml">
 <link href="./tmanecas-hero-final.png" rel="preload" as="image" fetchpriority="high">
+<link href="./audio/DANGEREUX_320.mp3" rel="preload" as="audio" type="audio/mpeg">
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:title" content="AK.REC">
@@ -981,6 +982,7 @@ Coaching</p></div></div></div><div class="framer-xmodkg" data-framer-name="Image
 
           banner.dataset.tmanecasPlayerMounted = "true";
           banner.innerHTML = `
+            <audio class="tmanecas-player__audio" src="./audio/DANGEREUX_320.mp3" autoplay preload="auto" playsinline></audio>
             <div class="tmanecas-player">
               <div class="tmanecas-player__tracks" role="list" aria-label="TMANECAS tracks">
                 ${tracks.map((track, index) => `
@@ -999,9 +1001,12 @@ Coaching</p></div></div></div><div class="framer-xmodkg" data-framer-name="Image
 
           const playableTrack = banner.querySelector(".tmanecas-player__track[data-audio]");
           if (playableTrack) {
-            const audio = new Audio(playableTrack.dataset.audio);
+            const audio = banner.querySelector(".tmanecas-player__audio");
+            if (!audio) return;
             audio.autoplay = true;
-            audio.preload = "metadata";
+            audio.preload = "auto";
+            audio.muted = false;
+            audio.volume = 1;
             const number = playableTrack.querySelector(".tmanecas-player__number");
             const originalNumber = number?.textContent || "02";
 
@@ -1029,20 +1034,35 @@ Coaching</p></div></div></div><div class="framer-xmodkg" data-framer-name="Image
             });
             audio.addEventListener("ended", () => syncPlaybackState(false));
 
-            const beginAutoplay = () => audio
-              .play()
-              .then(() => syncPlaybackState(true))
-              .catch(() => syncPlaybackState(false));
+            const unlockEvents = ["pointerdown", "touchstart", "click", "keydown"];
+            const removeUnlockListeners = () => unlockEvents.forEach((eventName) => {
+              document.removeEventListener(eventName, unlockAutoplay, true);
+            });
+            const beginAutoplay = () => {
+              audio.muted = false;
+              return audio.play()
+                .then(() => {
+                  syncPlaybackState(true);
+                  removeUnlockListeners();
+                  return true;
+                })
+                .catch(() => {
+                  syncPlaybackState(false);
+                  return false;
+                });
+            };
+            function unlockAutoplay(event) {
+              if (event.target instanceof Element && event.target.closest(".tmanecas-player__track.is-playable")) return;
+              if (audio.paused) beginAutoplay();
+            }
 
-            beginAutoplay().catch(() => {});
-            document.addEventListener("pointerdown", (event) => {
-              if (event.target instanceof Element && event.target.closest(".tmanecas-player__track.is-playable")) return;
-              if (audio.paused) beginAutoplay();
-            }, { once: true, capture: true });
-            document.addEventListener("keydown", (event) => {
-              if (event.target instanceof Element && event.target.closest(".tmanecas-player__track.is-playable")) return;
-              if (audio.paused) beginAutoplay();
-            }, { once: true, capture: true });
+            unlockEvents.forEach((eventName) => {
+              document.addEventListener(eventName, unlockAutoplay, { capture: true, passive: eventName !== "keydown" });
+            });
+            audio.addEventListener("canplay", beginAutoplay, { once: true });
+            window.addEventListener("pageshow", beginAutoplay, { once: true });
+            audio.load();
+            beginAutoplay();
           }
         }
 
