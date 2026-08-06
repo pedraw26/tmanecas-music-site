@@ -209,11 +209,11 @@
     if (route !== "releases") return;
     const kept = new Map([
       ["Heart Bulletproof", ["SAUDADE", "Longing becomes movement in a timeless Angolan rhythm carried by memory and soul."]],
-      ["Midnight Vandal", ["DANGEREUX feat RIKKA", "A fearless Semba pulse shaped by desire, danger, and the unmistakable voice of TMANECAS."]],
+      ["Midnight Vandal", ["DANGEREUX", "A fearless Semba pulse shaped by desire, danger, and the unmistakable voice of TMANECAS."]],
       ["Saudade", ["SAUDADE", "Longing becomes movement in a timeless Angolan rhythm carried by memory and soul."]],
-      ["DAGENREUX", ["DANGEREUX feat RIKKA", "A fearless Semba pulse shaped by desire, danger, and the unmistakable voice of TMANECAS."]],
-      ["DANGEREX", ["DANGEREUX feat RIKKA", "A fearless Semba pulse shaped by desire, danger, and the unmistakable voice of TMANECAS."]],
-      ["DANGEREUX", ["DANGEREUX feat RIKKA", "A fearless Semba pulse shaped by desire, danger, and the unmistakable voice of TMANECAS."]],
+      ["DAGENREUX", ["DANGEREUX", "A fearless Semba pulse shaped by desire, danger, and the unmistakable voice of TMANECAS."]],
+      ["DANGEREX", ["DANGEREUX", "A fearless Semba pulse shaped by desire, danger, and the unmistakable voice of TMANECAS."]],
+      ["DANGEREUX", ["DANGEREUX", "A fearless Semba pulse shaped by desire, danger, and the unmistakable voice of TMANECAS."]],
       ["SAUDADE", ["SAUDADE", "Longing becomes movement in a timeless Angolan rhythm carried by memory and soul."]]
     ]);
     const hidden = new Set(["My Rearview", "Pixel Tears"]);
