@@ -1,0 +1,47 @@
+.tmanecas-social-links {
+  align-items: center;
+  display: flex;
+  gap: 18px;
+}
+
+.tmanecas-social-links a {
+  align-items: center;
+  display: inline-flex;
+  height: 26px;
+  justify-content: center;
+  width: 26px;
+}
+
+.tmanecas-social-links img {
+  display: block;
+  height: 24px;
+  object-fit: contain;
+  width: 24px;
+}
+
+[data-framer-name="Section: Why choose us"],
+[data-framer-name="Button Load More"] {
+  display: none !important;
+}
+
+body.tmanecas-releases-route div:has(> a[href="./works/my-rearview"]),
+body.tmanecas-releases-route div:has(> a[href="./works/pixel-tears"]) {
+  display: none !important;
+}
+
+body.tmanecas-music-route [data-framer-name="Section: Hero"] {
+  background: #070707 url("./tmanecas-music-page-hero.png") center 38% / cover no-repeat !important;
+}
+
+body.tmanecas-music-route [data-framer-name="Section: Hero"] > [data-framer-background-image-wrapper="true"] {
+  display: none !important;
+}
+
+.tmanecas-granda-mambo {
+  display: block;
+  margin-top: .2em;
+}
+
+a[href*="framer.com"] {
+  display: none !important;
+}
