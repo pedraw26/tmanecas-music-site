@@ -19,7 +19,7 @@
 <link href="./favicon.svg" rel="icon" type="image/svg+xml">
 <link href="./tmanecas-hero-final.png" rel="preload" as="image" fetchpriority="high">
 <link href="./audio/DANGEREUX_320.mp3" rel="preload" as="audio" type="audio/mpeg">
-<link href="./route-customizations.css" rel="stylesheet">
+<link href="./route-customizations.css?v=20260806-1" rel="stylesheet">
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:title" content="AK.REC">
@@ -339,9 +339,9 @@ Coaching</p></div></div></div><div class="framer-xmodkg" data-framer-name="Image
       }
 
       [data-framer-name="Section: Hero & Loading"] {
-        background-color: #202020 !important;
-        background-blend-mode: screen !important;
-        background-image: url("./tmanecas-hero-final.png") !important;
+        background-color: #050505 !important;
+        background-blend-mode: normal !important;
+        background-image: linear-gradient(rgba(0, 0, 0, .12), rgba(0, 0, 0, .12)), url("./tmanecas-hero-final.png") !important;
         background-position: center center !important;
         background-repeat: no-repeat !important;
         background-size: cover !important;
@@ -439,8 +439,10 @@ Coaching</p></div></div></div><div class="framer-xmodkg" data-framer-name="Image
       }
 
       .tmanecas-shop-orb {
+        appearance: none;
         align-items: center;
         background: #ff2b4b;
+        border: 0;
         border-radius: 50%;
         color: #fff;
         display: flex;
@@ -461,6 +463,12 @@ Coaching</p></div></div></div><div class="framer-xmodkg" data-framer-name="Image
         transition: opacity .28s ease, transform .42s cubic-bezier(.2, .8, .2, 1);
         width: clamp(160px, 15vw, 240px);
         z-index: 22;
+      }
+
+      .tmanecas-shop-orb--play {
+        cursor: pointer;
+        padding: 0;
+        pointer-events: auto;
       }
 
       [data-framer-name="Section: Hero & Loading"]:hover .tmanecas-shop-orb,
@@ -513,6 +521,12 @@ Coaching</p></div></div></div><div class="framer-xmodkg" data-framer-name="Image
         text-decoration: none;
         transform: translateY(-1px);
         width: 32px;
+      }
+
+      .tmanecas-tiktok img {
+        display: block;
+        height: 24px;
+        width: 24px;
       }
 
       .tmanecas-coming-soon {
@@ -753,9 +767,9 @@ Coaching</p></div></div></div><div class="framer-xmodkg" data-framer-name="Image
           ["Craft your sound in a space built for artists, by artists.", "Semba with soul, rhythm, and stories that travel."],
           ["With Artists", "Creative Portraits"],
           ["WITH ARTISTS", "CREATIVE PORTRAITS"],
-          ["WHO WE ARE", "THE ARTIST"],
-          ["Who we are", "The artist"],
-          ["AK Record blends sound engineering, creativity, and artist-first values. We shape soundtracks that speak, move, and last.", "TMANECAS blends Angolan roots, live energy, and a timeless Semba spirit. Music made to move, connect, and endure."],
+          ["WHO WE ARE", "SEMBANDO"],
+          ["Who we are", "SEMBANDO"],
+          ["AK Record blends sound engineering, creativity, and artist-first values. We shape soundtracks that speak, move, and last.", "TMANECAS blends Angolan roots, live energy, and a timeless Semba spirit."],
           ["Sound Engineering", "Live Performance"],
           ["Experience Production", "Semba Heritage"],
           ["Recording Studio", "Original Music"],
@@ -777,7 +791,8 @@ Coaching</p></div></div></div><div class="framer-xmodkg" data-framer-name="Image
           ["Works", "Releases"],
           ["Contact", "Business"],
           ["DESIGN BY MINO", "FORTUNA RECORDS"],
-          ["© 2026 AK.RECORD All rights reserved", "© 2026 TMANECAS / FORTUNA RECORDS"]
+          ["© 2026 AK.RECORD All rights reserved", "© 2026 TMANECAS / FORTUNA RECORDS"],
+          ["We know — every project starts with a quick discovery session. If we’re the right fit, we move forward. If not, we’ll guide you elsewhere. We only take on work that matches our sound and values. Submit the form to book your first session.", "Every TMANECAS collaboration begins with a conversation. For live bookings, festivals, partnerships, press, and creative projects, share the details below. If the vision feels right, Fortuna Records will be in touch to shape the next move. We choose opportunities that respect the music, the culture, and the legacy. Submit the form to start the conversation."]
         ]);
 
         const heroOriginal = "From Raw Sound to Sonic Identity.";
@@ -839,22 +854,52 @@ Coaching</p></div></div></div><div class="framer-xmodkg" data-framer-name="Image
         }
 
         function mountShopOrbs(root) {
+          const primaryHero = root.querySelector('[data-framer-name="Section: Hero & Loading"]');
           const photographs = [
-            root.querySelector('[data-framer-name="Section: Hero & Loading"]'),
+            primaryHero,
             root.querySelector(".tmanecas-second-hero")
           ].filter(Boolean);
 
           photographs.forEach((photograph) => {
+            const isPrimaryHero = photograph === primaryHero;
             let orb = photograph.querySelector(".tmanecas-shop-orb");
             if (!orb) {
-              orb = document.createElement("a");
-              orb.className = "tmanecas-shop-orb";
-              orb.href = "https://www.tiktok.com/@tmanecas";
-              orb.target = "_blank";
-              orb.rel = "noopener noreferrer";
-              orb.setAttribute("aria-label", "Follow TMANECAS on TikTok");
-              orb.textContent = "FOLLOW";
+              orb = document.createElement(isPrimaryHero ? "button" : "a");
+              orb.className = `tmanecas-shop-orb${isPrimaryHero ? " tmanecas-shop-orb--play" : ""}`;
+              if (isPrimaryHero) {
+                orb.type = "button";
+                orb.setAttribute("aria-label", "Play DANGEREUX");
+                orb.textContent = "PLAY";
+              } else {
+                orb.href = "https://www.tiktok.com/@tmanecas";
+                orb.target = "_blank";
+                orb.rel = "noopener noreferrer";
+                orb.setAttribute("aria-label", "Follow TMANECAS on TikTok");
+                orb.textContent = "FOLLOW";
+              }
               photograph.appendChild(orb);
+            }
+
+            if (isPrimaryHero && orb.dataset.tmanecasPlayBound !== "true") {
+              orb.dataset.tmanecasPlayBound = "true";
+              orb.addEventListener("click", (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                const audio = root.querySelector(".tmanecas-player__audio");
+                const playableTrack = root.querySelector(".tmanecas-player__track[data-audio]");
+                if (!audio || !playableTrack) return;
+                audio.currentTime = 0;
+                audio.play().then(() => {
+                  playableTrack.classList.add("is-playing");
+                  playableTrack.setAttribute("aria-pressed", "true");
+                  playableTrack.setAttribute("aria-label", "Pause DANGEREUX");
+                  const number = playableTrack.querySelector(".tmanecas-player__number");
+                  if (number) number.textContent = "▶";
+                }).catch(() => {
+                  playableTrack.classList.remove("is-playing");
+                  playableTrack.setAttribute("aria-pressed", "false");
+                });
+              });
             }
 
             if (!photograph.dataset.tmanecasFollowCursor) {
@@ -864,10 +909,12 @@ Coaching</p></div></div></div><div class="framer-xmodkg" data-framer-name="Image
                 orb.style.left = `${event.clientX - bounds.left}px`;
                 orb.style.top = `${event.clientY - bounds.top}px`;
               });
-              photograph.addEventListener("click", (event) => {
-                if (event.target instanceof Element && event.target.closest("a, button")) return;
-                window.open("https://www.tiktok.com/@tmanecas", "_blank", "noopener,noreferrer");
-              });
+              if (!isPrimaryHero) {
+                photograph.addEventListener("click", (event) => {
+                  if (event.target instanceof Element && event.target.closest("a, button")) return;
+                  window.open("https://www.tiktok.com/@tmanecas", "_blank", "noopener,noreferrer");
+                });
+              }
               photograph.dataset.tmanecasFollowCursor = "true";
             }
           });
@@ -932,22 +979,29 @@ Coaching</p></div></div></div><div class="framer-xmodkg" data-framer-name="Image
                 tiktok.target = "_blank";
                 tiktok.rel = "noopener noreferrer";
                 tiktok.setAttribute("aria-label", "TMANECAS on TikTok");
-                tiktok.textContent = "♪";
+                tiktok.innerHTML = '<img src="./tiktok.svg" width="24" height="24" alt="">';
                 socialGroup.appendChild(tiktok);
               }
             }
+
+            footer.querySelectorAll(".tmanecas-tiktok").forEach((tiktok) => {
+              if (!tiktok.querySelector("img")) {
+                tiktok.innerHTML = '<img src="./tiktok.svg" width="24" height="24" alt="">';
+              }
+            });
 
             if (!footer.querySelector(".tmanecas-apple-music")) {
               const socialGroup = footer.querySelector('[data-framer-name="Social List"]');
               if (socialGroup) {
                 const appleMusic = document.createElement("a");
-                appleMusic.className = "tmanecas-apple-music";
+                appleMusic.className = "tmanecas-apple-music tmanecas-streaming-disabled";
                 appleMusic.href = "https://music.apple.com/gb/search?term=TMANECAS";
-                appleMusic.target = "_blank";
-                appleMusic.rel = "noopener noreferrer";
-                appleMusic.setAttribute("aria-label", "Find TMANECAS on Apple Music");
+                appleMusic.setAttribute("aria-label", "Apple Music — coming soon");
                 appleMusic.innerHTML = '<img src="./apple-music.svg" width="24" height="24" alt="">';
-                socialGroup.appendChild(appleMusic);
+                disableLink(appleMusic);
+                const spotify = socialGroup.querySelector('[aria-label="Spotify — coming soon"]');
+                if (spotify) spotify.insertAdjacentElement("afterend", appleMusic);
+                else socialGroup.appendChild(appleMusic);
               }
             }
           }
@@ -1013,16 +1067,8 @@ Coaching</p></div></div></div><div class="framer-xmodkg" data-framer-name="Image
               }
             };
 
-            playableTrack.addEventListener("click", togglePlayback);
-            playableTrack.addEventListener("keydown", (event) => {
-              if (event.key !== "Enter" && event.key !== " ") return;
-              event.preventDefault();
-              togglePlayback();
-            });
-            audio.addEventListener("ended", () => syncPlaybackState(false));
-
-            const beginAutoplay = () => {
-              audio.muted = false;
+            banner.tmanecasPlayDangerueux = () => {
+              audio.currentTime = 0;
               return audio.play()
                 .then(() => {
                   syncPlaybackState(true);
@@ -1033,14 +1079,35 @@ Coaching</p></div></div></div><div class="framer-xmodkg" data-framer-name="Image
                   return false;
                 });
             };
-            const beginOnScroll = () => {
-              if (audio.paused) beginAutoplay();
-            };
-            window.addEventListener("scroll", beginOnScroll, { once: true, passive: true });
-            window.addEventListener("wheel", beginOnScroll, { once: true, passive: true });
-            window.addEventListener("touchmove", beginOnScroll, { once: true, passive: true });
+
+            playableTrack.addEventListener("click", togglePlayback);
+            playableTrack.addEventListener("keydown", (event) => {
+              if (event.key !== "Enter" && event.key !== " ") return;
+              event.preventDefault();
+              togglePlayback();
+            });
+            audio.addEventListener("ended", () => syncPlaybackState(false));
+
             audio.load();
           }
+        }
+
+        function disableReleaseCardLinks(root) {
+          root.querySelectorAll(
+            'a[href*="works/heart-bulletproof"], a[href*="works/midnight-vandal"]'
+          ).forEach((link) => {
+            link.removeAttribute("href");
+            link.removeAttribute("target");
+            link.setAttribute("aria-disabled", "true");
+            link.classList.add("tmanecas-release-link-disabled");
+            if (link.dataset.tmanecasReleaseDisabled === "true") return;
+            link.dataset.tmanecasReleaseDisabled = "true";
+            link.addEventListener("click", (event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              event.stopImmediatePropagation();
+            }, true);
+          });
         }
 
         function replaceText(root) {
@@ -1085,7 +1152,7 @@ Coaching</p></div></div></div><div class="framer-xmodkg" data-framer-name="Image
             if (compact === "FEATURE") element.textContent = "FEATURE";
             if (compact === "WORKSBY") element.textContent = "Works BY";
             if (compact === "AK.RECORD") element.textContent = "TMANECAS";
-            if (compact === "THEARTIST" && !element.dataset.tmanecasArtistSized) {
+            if ((compact === "THEARTIST" || compact === "SEMBANDO") && !element.dataset.tmanecasArtistSized) {
               const currentSize = Number.parseFloat(getComputedStyle(element).fontSize);
               if (Number.isFinite(currentSize)) {
                 element.style.setProperty("font-size", `${currentSize * 0.8}px`, "important");
@@ -1114,6 +1181,7 @@ Coaching</p></div></div></div><div class="framer-xmodkg" data-framer-name="Image
           mountSecondHero(root);
           mountShopOrbs(root);
           prepareComingSoonNavigation(root);
+          disableReleaseCardLinks(root);
 
           const footerWordmark = root.querySelector('[data-framer-name="Company Name"]');
           if (footerWordmark) {
@@ -1157,6 +1225,6 @@ Coaching</p></div></div></div><div class="framer-xmodkg" data-framer-name="Image
       })();
     </script>
     <!-- End of bodyEnd -->
-<script src="./route-customizations.js"></script>
+<script src="./route-customizations.js?v=20260806-3"></script>
 </body>
 </html>
