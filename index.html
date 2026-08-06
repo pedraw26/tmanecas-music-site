@@ -333,17 +333,21 @@ Coaching</p></div></div></div><div class="framer-xmodkg" data-framer-name="Image
       }
     </style>
     <style id="tmanecas-coppelia-player-overrides">
-      [data-framer-name="Section: Hero & Loading"] img.tmanecas-hero-image {
-        object-fit: cover !important;
-        object-position: center center !important;
-      }
-
       [data-framer-name="Section: Hero & Loading"] h1 {
         display: none !important;
       }
 
       [data-framer-name="Section: Hero & Loading"] {
+        background-color: #050505 !important;
+        background-image: url("./tmanecas-hero-final.png") !important;
+        background-position: center center !important;
+        background-repeat: no-repeat !important;
+        background-size: cover !important;
         position: relative !important;
+      }
+
+      [data-framer-name="Section: Hero & Loading"] > [data-framer-name="Image"] {
+        display: none !important;
       }
 
       .tmanecas-hero-marquee {
@@ -696,8 +700,8 @@ Coaching</p></div></div></div><div class="framer-xmodkg" data-framer-name="Image
       }
 
       @media (max-width: 809.98px) {
-        [data-framer-name="Section: Hero & Loading"] img.tmanecas-hero-image {
-          object-position: 64% center !important;
+        [data-framer-name="Section: Hero & Loading"] {
+          background-position: 64% center !important;
         }
 
         .tmanecas-hero-marquee { height: 96px; }
@@ -779,18 +783,6 @@ Coaching</p></div></div></div><div class="framer-xmodkg" data-framer-name="Image
         function mountHeroImage(root) {
           const hero = root.querySelector('[data-framer-name="Section: Hero & Loading"]');
           if (!hero) return;
-
-          hero.querySelectorAll("img").forEach((image) => {
-            image.src = "./tmanecas-hero-final.png";
-            image.removeAttribute("srcset");
-            image.removeAttribute("sizes");
-            image.setAttribute("width", "2528");
-            image.setAttribute("height", "1088");
-            image.alt = "TMANECAS, Angolan Semba artist";
-            image.loading = "eager";
-            image.fetchPriority = "high";
-            image.classList.add("tmanecas-hero-image");
-          });
 
           hero.querySelectorAll("h1, h2, p, span").forEach((element) => {
             const label = element.textContent.replace(/\s+/g, " ").trim();
