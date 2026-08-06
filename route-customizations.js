@@ -26,6 +26,14 @@
     ["YouTube", "https://www.youtube.com/@tmanecas", "./youtube.svg"]
   ];
 
+  // The menu overlay is rendered at runtime by the Framer bundle, so its social
+  // links still point at the template defaults. Remap them by original host.
+  const menuSocialByHost = [
+    [/facebook\.com/i, "TikTok", "https://www.tiktok.com/@tmanecas"],
+    [/(^|\/\/)(x|twitter)\.com/i, "YouTube", "https://www.youtube.com/@tmanecas"],
+    [/instagram\.com/i, "Instagram", "https://www.instagram.com/tmanecas_/"]
+  ];
+
   const textReplacements = new Map([
     ["AK.REC", "TMANECAS"],
     ["AK Record", "FORTUNA RECORDS"],
@@ -78,6 +86,29 @@
         link.appendChild(image);
         return link;
       }));
+    });
+  }
+
+  function updateMenuSocialLinks(root) {
+    root.querySelectorAll("a[href]").forEach((link) => {
+      if (link.closest("footer") || link.dataset.tmanecasMenuSocial === "true") return;
+      const href = link.getAttribute("href") || "";
+      const match = menuSocialByHost.find(([pattern]) => pattern.test(href));
+      if (!match) return;
+      const [, label, target] = match;
+      link.dataset.tmanecasMenuSocial = "true";
+      link.setAttribute("href", target);
+      link.setAttribute("target", "_blank");
+      link.setAttribute("rel", "noopener noreferrer");
+      link.setAttribute("aria-label", `TMANECAS on ${label}`);
+      // The label is duplicated inside the link to drive the hover slide, so
+      // every text node has to be rewritten for both states to match.
+      const walker = document.createTreeWalker(link, NodeFilter.SHOW_TEXT);
+      const nodes = [];
+      while (walker.nextNode()) nodes.push(walker.currentNode);
+      nodes.forEach((node) => {
+        if (node.nodeValue.trim()) node.nodeValue = label;
+      });
     });
   }
 
@@ -180,15 +211,47 @@
     });
   }
 
+  // O bundle do Framer ainda navega para as rotas do template original
+  // (/service, /works), que nao existem como ficheiros. Sem isto o URL fica
+  // numa morada 404 e qualquer refresh destroi a pagina — e o som com ela.
+  const rotasOriginais = [
+    ["service", "music"],
+    ["works", "releases"]
+  ];
+
+  function siteRoot() {
+    const repositoryBase = "/tmanecas-music-site/";
+    const at = location.pathname.indexOf(repositoryBase);
+    return at >= 0 ? location.pathname.slice(0, at + repositoryBase.length) : "/";
+  }
+
+  // Os links do Framer sao relativos, por isso a partir de /music/ um clique em
+  // "./releases" produz /music/releases/ — um caminho que nao existe. Aqui o URL
+  // e sempre reescrito a partir da raiz, o que tambem desfaz esse aninhamento.
+  function normalizeUrl() {
+    if (location.protocol === "file:") return;
+    const segmentos = location.pathname.replace(/\/+$/, "").split("/").filter(Boolean);
+    let ultimo = segmentos.at(-1) || "";
+    if (ultimo === "index.html") ultimo = segmentos.at(-2) || "";
+    const mapa = new Map(rotasOriginais);
+    const destinoRota = mapa.get(ultimo) || (["music", "releases", "contact"].includes(ultimo) ? ultimo : null);
+    if (!destinoRota) return;
+    const esperado = siteRoot() + destinoRota + "/";
+    if (location.pathname === esperado) return;
+    history.replaceState(history.state, "", esperado + location.search + location.hash);
+  }
+
   let scheduled = false;
   function apply() {
     scheduled = false;
+    normalizeUrl();
     route = getCurrentRoute();
     document.body.classList.toggle("tmanecas-music-route", route === "music");
     document.body.classList.toggle("tmanecas-releases-route", route === "releases");
     updateRouteLinks(document);
     updateText(document);
     updateMenuSocials(document);
+    updateMenuSocialLinks(document);
     updateHomeStatement(document);
     customizeMusic(document);
     customizeReleases(document);
