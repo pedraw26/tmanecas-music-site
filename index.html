@@ -643,6 +643,11 @@ Coaching</p></div></div></div><div class="framer-xmodkg" data-framer-name="Image
 
       .tmanecas-player__track.is-playable { cursor: pointer; }
 
+      .tmanecas-player__track.is-coming-soon {
+        opacity: .3;
+        pointer-events: none;
+      }
+
       .tmanecas-player__track.is-playing .tmanecas-player__title {
         color: #ef334f;
         letter-spacing: .035em;
@@ -650,6 +655,17 @@ Coaching</p></div></div></div><div class="framer-xmodkg" data-framer-name="Image
 
       .tmanecas-player__track.is-playing .tmanecas-player__number {
         color: #ef334f;
+      }
+
+      .tmanecas-player__track.is-playing .tmanecas-player__number::before {
+        border-bottom: .32em solid transparent;
+        border-left: .52em solid #ef334f;
+        border-top: .32em solid transparent;
+        content: "";
+        display: inline-block;
+        height: 0;
+        transform: translateY(-.04em);
+        width: 0;
       }
 
       @media (prefers-reduced-motion: reduce) {
@@ -792,7 +808,7 @@ Coaching</p></div></div></div><div class="framer-xmodkg" data-framer-name="Image
           ["Contact", "Business"],
           ["DESIGN BY MINO", "FORTUNA RECORDS"],
           ["© 2026 AK.RECORD All rights reserved", "© 2026 TMANECAS / FORTUNA RECORDS"],
-          ["We know — every project starts with a quick discovery session. If we’re the right fit, we move forward. If not, we’ll guide you elsewhere. We only take on work that matches our sound and values. Submit the form to book your first session.", "Every TMANECAS collaboration begins with a conversation. For live bookings, festivals, partnerships, press, and creative projects, share the details below. If the vision feels right, Fortuna Records will be in touch to shape the next move. We choose opportunities that respect the music, the culture, and the legacy. Submit the form to start the conversation."]
+          ["We know — every project starts with a quick discovery session. If we’re the right fit, we move forward. If not, we’ll guide you elsewhere. We only take on work that matches our sound and values. Submit the form to book your first session.", "Every TMANECAS collaboration begins with a conversation. For partnerships, press, and creative projects, share the details below. If the vision feels right, Fortuna Records will be in touch to shape the next move. We choose opportunities that respect the music, the culture, and the legacy. Submit the form to start the conversation."]
         ]);
 
         const heroOriginal = "From Raw Sound to Sonic Identity.";
@@ -885,20 +901,8 @@ Coaching</p></div></div></div><div class="framer-xmodkg" data-framer-name="Image
               orb.addEventListener("click", (event) => {
                 event.preventDefault();
                 event.stopPropagation();
-                const audio = root.querySelector(".tmanecas-player__audio");
-                const playableTrack = root.querySelector(".tmanecas-player__track[data-audio]");
-                if (!audio || !playableTrack) return;
-                audio.currentTime = 0;
-                audio.play().then(() => {
-                  playableTrack.classList.add("is-playing");
-                  playableTrack.setAttribute("aria-pressed", "true");
-                  playableTrack.setAttribute("aria-label", "Pause DANGEREUX");
-                  const number = playableTrack.querySelector(".tmanecas-player__number");
-                  if (number) number.textContent = "▶";
-                }).catch(() => {
-                  playableTrack.classList.remove("is-playing");
-                  playableTrack.setAttribute("aria-pressed", "false");
-                });
+                const banner = root.querySelector('[data-framer-name="Banner"]');
+                banner?.tmanecasPlayDangerueux?.();
               });
             }
 
@@ -1012,22 +1016,22 @@ Coaching</p></div></div></div><div class="framer-xmodkg" data-framer-name="Image
           if (!banner || banner.querySelector(".tmanecas-player")) return;
 
           const tracks = [
-        { title: "MUSICA", duration: "5:35" },
+        { title: "SUBMUNDO", duration: "5:35" },
         { title: "DANGEREUX", duration: "3:18", audio: "./audio/DANGEREUX_320.mp3" },
-        { title: "SAUDADE", duration: "4:58" },
-        { title: "FORTUNA", duration: "5:12" },
+        { title: "SAUDADE", duration: "2:07", audio: "./audio/SAUDADE_320.mp3" },
+        { title: "FORTUNA", duration: "5:12", comingSoon: true },
         { title: "GATO PRETO", duration: "3:24" },
-        { title: "VENCER", duration: "4:00" },
-        { title: "RELOGIO", duration: "6:34" }
+        { title: "VENCER", duration: "4:00", comingSoon: true },
+        { title: "RELOGIO", duration: "6:34", comingSoon: true }
           ];
 
           banner.dataset.tmanecasPlayerMounted = "true";
           banner.innerHTML = `
-            <audio class="tmanecas-player__audio" src="./audio/DANGEREUX_320.mp3" preload="auto" playsinline></audio>
+            <audio class="tmanecas-player__audio" preload="none" playsinline></audio>
             <div class="tmanecas-player">
               <div class="tmanecas-player__tracks" role="list" aria-label="TMANECAS tracks">
                 ${tracks.map((track, index) => `
-                  <div class="tmanecas-player__track${track.audio ? ' is-playable' : ''}" role="${track.audio ? 'button' : 'listitem'}"${track.audio ? ` tabindex="0" aria-pressed="false" data-audio="${track.audio}" aria-label="Play ${track.title}"` : ''}>
+                  <div class="tmanecas-player__track${track.audio ? ' is-playable' : ''}${track.comingSoon ? ' is-coming-soon' : ''}" role="${track.audio ? 'button' : 'listitem'}"${track.audio ? ` tabindex="0" aria-pressed="false" data-audio="${track.audio}" aria-label="Play ${track.title}"` : ''}>
                     <span class="tmanecas-player__number">${String(index + 1).padStart(2, "0")}</span>
                     <span class="tmanecas-player__title">${track.title}</span>
                     <span class="tmanecas-player__duration">${track.duration}</span>
@@ -1040,55 +1044,102 @@ Coaching</p></div></div></div><div class="framer-xmodkg" data-framer-name="Image
               </div>
             </div>`;
 
-          const playableTrack = banner.querySelector(".tmanecas-player__track[data-audio]");
-          if (playableTrack) {
+          const playableTracks = Array.from(banner.querySelectorAll(".tmanecas-player__track[data-audio]"));
+          if (playableTracks.length) {
             const audio = banner.querySelector(".tmanecas-player__audio");
             if (!audio) return;
             audio.autoplay = false;
-            audio.preload = "auto";
+            audio.removeAttribute("autoplay");
+            audio.preload = "none";
             audio.muted = false;
             audio.volume = 1;
-            const number = playableTrack.querySelector(".tmanecas-player__number");
-            const originalNumber = number?.textContent || "02";
+            audio.pause();
+            audio.currentTime = 0;
+            const originalNumbers = new Map(playableTracks.map((track) => [
+              track,
+              track.querySelector(".tmanecas-player__number")?.textContent || ""
+            ]));
+            let playbackRequestActive = false;
+            let activeTrack = null;
 
-            const syncPlaybackState = (playing) => {
-              playableTrack.classList.toggle("is-playing", playing);
-              playableTrack.setAttribute("aria-pressed", String(playing));
-              playableTrack.setAttribute("aria-label", `${playing ? "Pause" : "Play"} DANGEREUX`);
-              if (number) number.textContent = playing ? "▶" : originalNumber;
+            const syncPlaybackState = (track, playing) => {
+              playableTracks.forEach((candidate) => {
+                const isPlaying = candidate === track && playing;
+                const title = candidate.querySelector(".tmanecas-player__title")?.textContent || "track";
+                const number = candidate.querySelector(".tmanecas-player__number");
+                candidate.classList.toggle("is-playing", isPlaying);
+                candidate.setAttribute("aria-pressed", String(isPlaying));
+                candidate.setAttribute("aria-label", `${isPlaying ? "Pause" : "Play"} ${title}`);
+                if (number) number.textContent = isPlaying ? "" : originalNumbers.get(candidate);
+              });
             };
 
-            const togglePlayback = () => {
-              if (audio.paused) {
-                audio.play().then(() => syncPlaybackState(true)).catch(() => syncPlaybackState(false));
+            const requestPlayback = (track, restart = false) => {
+              const source = track.dataset.audio;
+              if (!source) return Promise.reject(new Error("Missing audio source"));
+              if (activeTrack !== track || audio.getAttribute("src") !== source) {
+                audio.pause();
+                audio.setAttribute("src", source);
+                audio.load();
+                activeTrack = track;
+                restart = true;
+              }
+              playbackRequestActive = true;
+              if (restart) audio.currentTime = 0;
+              return audio.play().finally(() => {
+                playbackRequestActive = false;
+              });
+            };
+
+            const togglePlayback = (track) => {
+              if (audio.paused || activeTrack !== track) {
+                requestPlayback(track).then(() => syncPlaybackState(track, true)).catch(() => syncPlaybackState(track, false));
               } else {
                 audio.pause();
-                syncPlaybackState(false);
+                syncPlaybackState(track, false);
               }
             };
 
             banner.tmanecasPlayDangerueux = () => {
-              audio.currentTime = 0;
-              return audio.play()
+              const dangereuxTrack = playableTracks.find((track) => track.dataset.audio?.includes("DANGEREUX"));
+              if (!dangereuxTrack) return Promise.resolve(false);
+              return requestPlayback(dangereuxTrack, true)
                 .then(() => {
-                  syncPlaybackState(true);
+                  syncPlaybackState(dangereuxTrack, true);
                   return true;
                 })
                 .catch(() => {
-                  syncPlaybackState(false);
+                  syncPlaybackState(dangereuxTrack, false);
                   return false;
                 });
             };
 
-            playableTrack.addEventListener("click", togglePlayback);
-            playableTrack.addEventListener("keydown", (event) => {
-              if (event.key !== "Enter" && event.key !== " ") return;
-              event.preventDefault();
-              togglePlayback();
+            audio.addEventListener("play", () => {
+              if (playbackRequestActive) return;
+              audio.pause();
+              syncPlaybackState(activeTrack, false);
             });
-            audio.addEventListener("ended", () => syncPlaybackState(false));
 
-            audio.load();
+            window.addEventListener("pagehide", () => {
+              audio.pause();
+              syncPlaybackState(activeTrack, false);
+            });
+
+            window.addEventListener("pageshow", () => {
+              if (audio.paused) return;
+              audio.pause();
+              syncPlaybackState(activeTrack, false);
+            });
+
+            playableTracks.forEach((track) => {
+              track.addEventListener("click", () => togglePlayback(track));
+              track.addEventListener("keydown", (event) => {
+                if (event.key !== "Enter" && event.key !== " ") return;
+                event.preventDefault();
+                togglePlayback(track);
+              });
+            });
+            audio.addEventListener("ended", () => syncPlaybackState(activeTrack, false));
           }
         }
 

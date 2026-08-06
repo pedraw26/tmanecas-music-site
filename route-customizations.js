@@ -176,7 +176,7 @@
     root.querySelectorAll("p").forEach((paragraph) => {
       const copy = paragraph.textContent.replace(/\s+/g, " ").trim();
       if (!copy.includes("every project starts with a quick discovery session") || !copy.includes("Submit the form")) return;
-      paragraph.textContent = "Every TMANECAS collaboration begins with a conversation. For live bookings, festivals, partnerships, press, and creative projects, share the details below. If the vision feels right, Fortuna Records will be in touch to shape the next move. We choose opportunities that respect the music, the culture, and the legacy. Submit the form to start the conversation.";
+      paragraph.textContent = "Every TMANECAS collaboration begins with a conversation. For partnerships, press, and creative projects, share the details below. If the vision feels right, Fortuna Records will be in touch to shape the next move. We choose opportunities that respect the music, the culture, and the legacy. Submit the form to start the conversation.";
     });
   }
 
