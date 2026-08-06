@@ -30,7 +30,7 @@ body.tmanecas-releases-route div:has(> a[href="./works/pixel-tears"]) {
 }
 
 body.tmanecas-music-route [data-framer-name="Section: Hero"] {
-  background: #070707 url("./tmanecas-music-hero-sky.png") center 45% / cover no-repeat !important;
+  background: #070707 url("./tmanecas-music-hero-sky.jpg") center 45% / cover no-repeat !important;
 }
 
 body.tmanecas-music-route [data-framer-name="Section: Hero"] > [data-framer-background-image-wrapper="true"] {

@@ -143,7 +143,7 @@
         if (image) {
           image.removeAttribute("srcset");
           image.removeAttribute("sizes");
-          image.src = siteAsset(newTitle === "SAUDADE" ? "saudade.jpg" : "dangereux-work-II.png");
+          image.src = siteAsset(newTitle === "SAUDADE" ? "saudade.jpg" : "dangereux-work-II.jpg");
           image.alt = `TMANECAS — ${newTitle}`;
         }
       }
