@@ -208,21 +208,44 @@
 <!-- End TMANECAS loading screen -->
 <!-- Porta de acesso -->
 <div id="tmanecas-porta" role="dialog" aria-modal="true" aria-label="Acesso restrito">
-  <div class="tmanecas-porta__caixa">
-    <p class="tmanecas-porta__marca">TMANECAS</p>
-    <p class="tmanecas-porta__aviso">Restricted access</p>
-    <form class="tmanecas-porta__forma" autocomplete="off">
-      <input class="tmanecas-porta__campo" type="password" name="acesso"
-             aria-label="Password" autocomplete="current-password" spellcheck="false">
-      <button class="tmanecas-porta__seta" type="submit" aria-label="Entrar">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6" fill="none"
-             stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </button>
-    </form>
+  <figure class="tmanecas-porta__foto">
+    <img src="./tmanecas-porta.webp" width="782" height="1400" alt="" decoding="async">
+  </figure>
+  <div class="tmanecas-porta__lado">
+    <div class="tmanecas-porta__caixa">
+      <p class="tmanecas-porta__marca">TMANECAS</p>
+      <p class="tmanecas-porta__aviso">Restricted access</p>
+      <form class="tmanecas-porta__forma" autocomplete="off">
+        <input class="tmanecas-porta__campo" type="password" name="acesso"
+               aria-label="Password" autocomplete="current-password" spellcheck="false">
+        <button class="tmanecas-porta__seta" type="submit" aria-label="Entrar">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6" fill="none"
+               stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </form>
+    </div>
+    <!-- Valores de exemplo, a substituir pelos reais antes de o site abrir. -->
+    <address class="tmanecas-porta__editora">
+      <strong>Fortuna Records Ltd</strong>
+      Registered in England &amp; Wales<br>
+      Company No. 00000000 &middot; VAT GB 000 0000 00<br>
+      London, United Kingdom &middot; +44 (0)20 0000 0000
+    </address>
   </div>
 </div>
 <style>
-#tmanecas-porta{position:fixed;inset:0;z-index:2147483646;display:flex;align-items:center;justify-content:center;background:#ef334f;opacity:1;transition:opacity .5s ease}
+#tmanecas-porta{position:fixed;inset:0;z-index:2147483646;display:flex;align-items:stretch;background:#ef334f;opacity:1;transition:opacity .5s ease}
+.tmanecas-porta__foto{flex:0 0 42%;margin:0;overflow:hidden;position:relative}
+.tmanecas-porta__foto img{width:100%;height:100%;object-fit:cover;display:block}
+.tmanecas-porta__lado{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6vh 5vw;position:relative}
+.tmanecas-porta__editora{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;font-size:11px;font-style:normal;letter-spacing:.06em;line-height:1.85;margin-top:auto;opacity:.6;padding-top:6vh;text-align:center}
+.tmanecas-porta__editora strong{display:block;font-weight:600;letter-spacing:.14em;text-transform:uppercase}
+@media (max-width:809.98px){
+  #tmanecas-porta{flex-direction:column}
+  .tmanecas-porta__foto{flex:0 0 34%}
+  .tmanecas-porta__lado{padding:5vh 8vw}
+  .tmanecas-porta__editora{font-size:10px;padding-top:4vh}
+}
 #tmanecas-porta[hidden]{display:none}
 #tmanecas-porta.is-aberta{opacity:0;pointer-events:none}
 .tmanecas-porta__caixa{width:min(88vw,460px);text-align:center;color:#000102}
