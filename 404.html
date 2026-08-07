@@ -233,6 +233,21 @@
         padding: clamp(54px, 7vw, 110px) clamp(20px, 6vw, 96px) !important;
       }
 
+      .tmanecas-hero-video {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        z-index: 0;
+        pointer-events: none;
+      }
+
+      .tmanecas-hero-video video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+
       .tmanecas-player {
         color: #fff;
         display: flex;
@@ -290,6 +305,26 @@
         font-size: clamp(13px, 1.15vw, 17px);
         font-variant-numeric: tabular-nums;
         letter-spacing: .08em;
+      }
+
+      /* O invólucro mantem o titulo centrado: o DEMO fica fora do fluxo,
+         pendurado a direita do texto, por isso nao desloca o centro. */
+      .tmanecas-player__titletext {
+        display: inline-block;
+        position: relative;
+      }
+
+      .tmanecas-player__demo {
+        color: #ef4323;
+        font-family: inherit;
+        /* 50% maior que antes, e centrado por baixo do titulo */
+        font-size: clamp(15px, 1.58vw, 27px);
+        letter-spacing: .14em;
+        line-height: 1;
+        margin-right: .5em;
+        opacity: .9;
+        vertical-align: .28em;
+        white-space: nowrap;
       }
 
       .tmanecas-player__title {
@@ -863,6 +898,45 @@
 
         const heroOriginal = "From Raw Sound to Sonic Identity.";
 
+        function mountHeroVideo(root) {
+          const hero = root.querySelector('[data-framer-name="Section: Hero & Loading"]');
+          if (!hero || hero.querySelector(".tmanecas-hero-video")) return;
+          if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+          const raiz = (() => {
+            if (location.protocol === "file:") return "./";
+            const base = "/tmanecas-music-site/";
+            const at = location.pathname.indexOf(base);
+            return at >= 0 ? location.pathname.slice(0, at + base.length) : "/";
+          })();
+
+          const camada = document.createElement("div");
+          camada.className = "tmanecas-hero-video";
+          camada.setAttribute("aria-hidden", "true");
+
+          const video = document.createElement("video");
+          video.muted = true;
+          video.defaultMuted = true;
+          video.loop = true;
+          video.autoplay = true;
+          video.playsInline = true;
+          video.setAttribute("muted", "");
+          video.setAttribute("playsinline", "");
+          video.preload = "auto";
+          // A fotografia continua a ser o poster: se o video falhar, fica ela.
+          video.poster = raiz + "tmanecas-hero-final.png";
+          video.src = raiz + "tmanecas-hero.mp4";
+
+          const desistir = () => camada.remove();
+          video.addEventListener("error", desistir);
+
+          camada.appendChild(video);
+          hero.insertBefore(camada, hero.firstChild);
+
+          const p = video.play();
+          if (p && typeof p.catch === "function") p.catch(desistir);
+        }
+
         function mountHeroImage(root) {
           const hero = root.querySelector('[data-framer-name="Section: Hero & Loading"]');
           if (!hero) return;
@@ -1066,10 +1140,10 @@
           if (!banner || banner.querySelector(".tmanecas-player")) return;
 
           const tracks = [
-        { title: "SUBMUNDO", duration: "5:35" },
+        { title: "SUBMUNDO", duration: "5:35", comingSoon: true },
         { title: "DANGEREUX", duration: "3:18", audio: "./audio/DANGEREUX_320.mp3" },
         { title: "SAUDADE", duration: "2:07", audio: "./audio/SAUDADE_320.mp3" },
-        { title: "GATO PRETO", duration: "3:24" },
+        { title: "GATO PRETO", duration: "1:35", audio: "./audio/GATO_PRETO.mp3", demo: true },
         { title: "FORTUNA", duration: "5:12", comingSoon: true },
         { title: "VENCER", duration: "4:00", comingSoon: true },
         { title: "RELOGIO", duration: "6:34", comingSoon: true }
@@ -1082,7 +1156,7 @@
                 ${tracks.map((track, index) => `
                   <div class="tmanecas-player__track${track.audio ? ' is-playable' : ''}${track.comingSoon ? ' is-coming-soon' : ''}" role="${track.audio ? 'button' : 'listitem'}"${track.audio ? ` tabindex="0" aria-pressed="false" data-audio="${track.audio}" aria-label="Play ${track.title}"` : ''}>
                     <span class="tmanecas-player__number">${String(index + 1).padStart(2, "0")}</span>
-                    <span class="tmanecas-player__title">${track.title}</span>
+                    <span class="tmanecas-player__title"><span class="tmanecas-player__titletext">${track.demo ? '<span class="tmanecas-player__demo">DEMO</span>' : ''}${track.title}</span></span>
                     <span class="tmanecas-player__duration">${track.duration}</span>
                   </div>
                 `).join("")}
@@ -1312,6 +1386,8 @@
           });
           document.getElementById("__framer-badge-container")?.remove();
           mountHeroImage(root);
+          // Extra: nunca pode impedir o resto da personalizacao de correr.
+          try { mountHeroVideo(root); } catch (e) { console.error("[tmanecas] hero video:", e); }
           mountMusicPlayer(root);
           mountSecondHero(root);
           mountShopOrbs(root);
