@@ -199,7 +199,7 @@
       const text = element.textContent.replace(/\s+/g, " ").trim();
       if (!text.startsWith("TMANECAS blends Angolan roots") || element.dataset.grandaMambo === "true") return;
       element.dataset.grandaMambo = "true";
-      element.innerHTML = 'TMANECAS blends Angolan roots, live energy,<br>and a timeless Semba spirit.<span class="tmanecas-granda-mambo">GRANDA MAMBO</span>';
+      element.innerHTML = 'TMANECAS blends Angolan roots, live energy,<br>and a timeless Semba spirit.<br><span class="tmanecas-granda-mambo">GRANDA MAMBO</span>';
     });
   }
 

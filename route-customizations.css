@@ -37,9 +37,10 @@ body.tmanecas-music-route [data-framer-name="Section: Hero"] > [data-framer-back
   display: none !important;
 }
 
+/* Mais uma linha do bloco, com o mesmo intervalo das de cima — sem margem
+   propria nem altura de linha diferente, que abriam um salto a mais. */
 .tmanecas-granda-mambo {
-  display: block;
-  margin-top: .2em;
+  display: inline;
 }
 
 a[href*="framer.com"] {
