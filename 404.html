@@ -249,17 +249,37 @@
          entram quando a cara chega ao fim. A classe so existe se o scrubbing
          chegou a arrancar, por isso uma falha nunca deixa nada escondido. */
       /* O Framer define a opacidade em estilo inline, dai o !important. */
+      /* As animacoes de entrada do Framer correm no carregamento, enquanto
+         estes elementos ainda estao escondidos — quando os revelamos, ja
+         terminaram. Damos-lhes uma entrada propria: sobem enquanto surgem. */
       body.tmanecas-hero-scroll [data-framer-name="Header"],
       body.tmanecas-hero-scroll .tmanecas-hero-marquee {
         opacity: 0 !important;
         pointer-events: none !important;
-        transition: opacity .55s ease !important;
+        transition: opacity .6s ease, transform .7s cubic-bezier(.22, .61, .36, 1) !important;
       }
 
       body.tmanecas-hero-scroll.tmanecas-hero-chegou [data-framer-name="Header"],
       body.tmanecas-hero-scroll.tmanecas-hero-chegou .tmanecas-hero-marquee {
         opacity: 1 !important;
         pointer-events: auto !important;
+      }
+
+      /* O cabecalho nao leva movimento: o Framer ja lhe aplica um transform
+         proprio para o posicionar, e sobrepo-lo partiria o alinhamento. */
+
+      /* O marquee sobe enquanto surge, um instante depois do cabecalho. */
+      body.tmanecas-hero-scroll .tmanecas-hero-marquee {
+        transform: translateY(28px);
+        transition-delay: .12s !important;
+      }
+
+      body.tmanecas-hero-scroll.tmanecas-hero-chegou .tmanecas-hero-marquee {
+        transform: translateY(0);
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        body.tmanecas-hero-scroll .tmanecas-hero-marquee { transform: none !important; }
       }
 
       /* O pai do Framer e um flex com align-items:center, por isso um bloco
@@ -276,6 +296,42 @@
       #tmanecas-hero-espaco {
         height: 240vh;
         pointer-events: none;
+      }
+
+      .tmanecas-hero-indicador {
+        bottom: clamp(28px, 4vh, 56px);
+        height: 46px;
+        left: 50%;
+        overflow: hidden;
+        position: absolute;
+        transform: translateX(-50%);
+        transition: opacity .4s ease;
+        width: 1px;
+        z-index: 3;
+        background: rgba(255, 255, 255, .25);
+      }
+
+      /* Um segmento mais claro que desce pelo traco, em ciclo. */
+      .tmanecas-hero-indicador span {
+        background: #fff;
+        display: block;
+        height: 16px;
+        width: 100%;
+        animation: tmanecas-descer 1.9s cubic-bezier(.5, 0, .5, 1) infinite;
+      }
+
+      @keyframes tmanecas-descer {
+        0%   { transform: translateY(-16px); opacity: 0; }
+        30%  { opacity: 1; }
+        70%  { opacity: 1; }
+        100% { transform: translateY(46px); opacity: 0; }
+      }
+
+      body.tmanecas-hero-scroll .tmanecas-hero-indicador { opacity: 1 !important; }
+      body.tmanecas-hero-scroll.tmanecas-hero-mexeu .tmanecas-hero-indicador { opacity: 0 !important; }
+
+      @media (prefers-reduced-motion: reduce) {
+        .tmanecas-hero-indicador span { animation: none; }
       }
 
       .tmanecas-hero-video {
@@ -1005,6 +1061,20 @@
             }, { once: true });
           }
 
+          // Indicador de scroll: um traco fino ao centro, em baixo. Vive dentro
+          // do hero, por isso fica preso com ele, e apaga-se assim que o
+          // visitante comeca a rolar — ja cumpriu o seu papel.
+          if (!camada.querySelector(".tmanecas-hero-indicador")) {
+            const ind = document.createElement("div");
+            ind.className = "tmanecas-hero-indicador";
+            ind.setAttribute("aria-hidden", "true");
+            ind.innerHTML = '<span></span>';
+            // Dentro da camada do video: e um contentor nosso, com posicao
+            // propria, fora do alcance das animacoes de entrada do Framer —
+            // que punham a opacidade a zero em qualquer filho novo do hero.
+            camada.appendChild(ind);
+          }
+
           // Espaco de scroll logo a seguir ao hero: e a sua altura que define
           // quanto e preciso rolar para percorrer o video.
           let espaco = document.getElementById("tmanecas-hero-espaco");
@@ -1086,6 +1156,7 @@
             if (Math.abs(v.currentTime - actual) > 0.008) v.currentTime = actual;
             heroTempo = actual;
             document.body.classList.toggle("tmanecas-hero-chegou", p > 0.93);
+            document.body.classList.toggle("tmanecas-hero-mexeu", progresso() > 0.015);
           };
           heroScrub = requestAnimationFrame(laco);
         }
