@@ -224,15 +224,11 @@
         </button>
       </form>
     </div>
-    <!-- Numeros de exemplo: o de empresa esta fora do intervalo atribuido pela
-     Companies House e o de IVA falha a soma de controlo, por isso nao podem
-     pertencer a ninguem. Substituir pelos reais quando existirem. -->
-    <address class="tmanecas-porta__editora">
-      <strong>Fortuna Records Ltd</strong>
-      Registered in England &amp; Wales<br>
-      Company No. 98274613 &middot; VAT GB 487 2619 34<br>
-      London, United Kingdom &middot; +44 7765 440505
-    </address>
+    <div class="tmanecas-porta__sociais">
+      <a href="https://www.tiktok.com/@tmanecas" target="_blank" rel="noopener noreferrer" aria-label="TMANECAS on TikTok"><img src="./tiktok.svg" width="22" height="22" alt=""></a>
+      <a href="https://www.instagram.com/tmanecas_/" target="_blank" rel="noopener noreferrer" aria-label="TMANECAS on Instagram"><img src="./instagram.svg" width="22" height="22" alt=""></a>
+      <a href="https://www.youtube.com/@tmanecas" target="_blank" rel="noopener noreferrer" aria-label="TMANECAS on YouTube"><img src="./youtube.svg" width="22" height="22" alt=""></a>
+    </div>
   </div>
 </div>
 <style>
@@ -240,15 +236,18 @@
 .tmanecas-porta__foto{flex:0 0 42%;margin:0;overflow:hidden;position:relative}
 .tmanecas-porta__foto img{width:100%;height:100%;object-fit:cover;object-position:center top;display:block}
 .tmanecas-porta__lado{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6vh 5vw;position:relative}
-.tmanecas-porta__editora{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;font-size:11px;font-style:normal;letter-spacing:.06em;line-height:1.85;margin-top:auto;opacity:.6;padding-top:6vh;text-align:center}
-.tmanecas-porta__editora strong{display:block;font-weight:600;letter-spacing:.14em;text-transform:uppercase}
+.tmanecas-porta__sociais{align-items:center;display:flex;gap:26px;justify-content:center;margin-top:auto;padding-top:6vh}
+.tmanecas-porta__sociais a{display:flex;opacity:.72;transition:opacity .2s ease,transform .2s ease}
+.tmanecas-porta__sociais a:hover{opacity:1;transform:translateY(-2px)}
+/* Os icones sao brancos; sobre o vermelho passam a pretos, como o resto. */
+.tmanecas-porta__sociais img{width:22px;height:22px;display:block;filter:brightness(0)}
 @media (max-width:809.98px){
   #tmanecas-porta{flex-direction:column}
   /* A foto e vertical: numa faixa baixa o corte comia-lhe a cara. */
   .tmanecas-porta__foto{flex:0 0 52%}
   .tmanecas-porta__lado{padding:3.5vh 8vw;justify-content:flex-start}
   .tmanecas-porta__caixa{margin-top:2vh}
-  .tmanecas-porta__editora{font-size:10px;padding-top:3vh}
+  .tmanecas-porta__sociais{gap:22px;padding-top:3vh}
 }
 #tmanecas-porta[hidden]{display:none}
 #tmanecas-porta.is-aberta{opacity:0;pointer-events:none}
