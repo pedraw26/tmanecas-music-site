@@ -300,6 +300,14 @@
 
       .tmanecas-oculto { display: none !important; }
 
+      /* Este slide branco passa a ter a mesma altura do slide do GRANDA
+         MAMBO — um ecra inteiro — com o texto centrado na vertical. */
+      [data-framer-name="Section: Who we are"] {
+        min-height: 100vh !important;
+        justify-content: center !important;
+        align-items: center !important;
+      }
+
       .tmanecas-frase-centrada {
         text-align: center !important;
         margin-left: auto !important;
@@ -1572,7 +1580,12 @@
               normalizedText.includes("independent artists") &&
               normalizedText.includes("creators")
             ) {
-              element.textContent = "TMANECAS is an Angolan Semba artist sharing timeless rhythms with the world.";
+              // Quatro linhas, quebradas onde a frase respira melhor.
+              if (element.dataset.tmanecasFrase !== "true") {
+                element.dataset.tmanecasFrase = "true";
+                element.innerHTML =
+                  "TMANECAS is an Angolan<br>Semba artist sharing<br>timeless rhythms<br>with the world.";
+              }
             }
 
             if (text === heroOriginal) {
@@ -1608,7 +1621,8 @@
                 const caixa = el.closest('[class*="-container"]') || el;
                 caixa.classList.add("tmanecas-oculto");
               }
-              if (/Angolan Semba artist sharing/i.test(t)) {
+              // Tolerante aos <br>: sem eles o texto junta-se ("AngolanSemba").
+              if (/Semba\s*artist\s*sharing|timeless\s*rhythms/i.test(t)) {
                 el.classList.add("tmanecas-frase-centrada");
               }
             });
