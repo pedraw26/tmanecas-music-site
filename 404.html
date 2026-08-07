@@ -298,6 +298,14 @@
         pointer-events: none;
       }
 
+      .tmanecas-oculto { display: none !important; }
+
+      .tmanecas-frase-centrada {
+        text-align: center !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+      }
+
       .tmanecas-hero-indicador {
         bottom: clamp(28px, 4vh, 56px);
         height: 46px;
@@ -1590,6 +1598,20 @@
               span.style.setProperty("--framer-text-color", "#ef334f", "important");
               span.style.setProperty("color", "#ef334f", "important");
             }
+          });
+
+          // O SEMBANDO sai, e a frase que o acompanhava passa a centrada.
+          root.querySelectorAll('[data-framer-name="Section: Who we are"]').forEach((seccao) => {
+            seccao.querySelectorAll("h1, h2, p").forEach((el) => {
+              const t = el.textContent.replace(/\s+/g, " ").trim();
+              if (t === "SEMBANDO") {
+                const caixa = el.closest('[class*="-container"]') || el;
+                caixa.classList.add("tmanecas-oculto");
+              }
+              if (/Angolan Semba artist sharing/i.test(t)) {
+                el.classList.add("tmanecas-frase-centrada");
+              }
+            });
           });
 
           root.querySelectorAll('a[href^="tel:"]').forEach((link) => link.removeAttribute("href"));
