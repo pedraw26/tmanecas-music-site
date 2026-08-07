@@ -168,8 +168,13 @@
 </style>
 <script>
 (function(){
+  // O ecra de carregamento fica intacto, apenas desligado por agora.
+  // Para o trazer de volta: mudar esta linha para true.
+  var LOADER_ACTIVO = false;
+
   var el=document.getElementById('tmanecas-loader');
   if(!el)return;
+  if(!LOADER_ACTIVO){ el.remove(); return; }
   var gone=false;
   function hide(){
     if(gone)return; gone=true;
@@ -201,6 +206,95 @@
 })();
 </script>
 <!-- End TMANECAS loading screen -->
+<!-- Porta de acesso -->
+<div id="tmanecas-porta" role="dialog" aria-modal="true" aria-label="Acesso restrito">
+  <div class="tmanecas-porta__caixa">
+    <p class="tmanecas-porta__marca">TMANECAS</p>
+    <p class="tmanecas-porta__aviso">Restricted access</p>
+    <form class="tmanecas-porta__forma" autocomplete="off">
+      <input class="tmanecas-porta__campo" type="password" name="acesso"
+             aria-label="Password" autocomplete="current-password" spellcheck="false">
+      <button class="tmanecas-porta__seta" type="submit" aria-label="Entrar">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6" fill="none"
+             stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </form>
+  </div>
+</div>
+<style>
+#tmanecas-porta{position:fixed;inset:0;z-index:2147483646;display:flex;align-items:center;justify-content:center;background:#ef334f;opacity:1;transition:opacity .5s ease}
+#tmanecas-porta[hidden]{display:none}
+#tmanecas-porta.is-aberta{opacity:0;pointer-events:none}
+.tmanecas-porta__caixa{width:min(88vw,460px);text-align:center;color:#000102}
+.tmanecas-porta__marca{font-family:"League Gothic","Arial Narrow",sans-serif;font-size:clamp(46px,9vw,86px);letter-spacing:.01em;line-height:.92;margin:0;text-transform:uppercase}
+.tmanecas-porta__aviso{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;font-size:12px;font-weight:600;letter-spacing:.22em;margin:.5em 0 2.4em;opacity:.72;text-transform:uppercase}
+.tmanecas-porta__forma{align-items:center;border-bottom:1.5px solid rgba(0,1,2,.45);display:flex;gap:10px;padding-bottom:8px;transition:border-color .25s ease}
+.tmanecas-porta__forma.is-errada{animation:tmanecas-porta-nao .42s ease;border-color:#000102}
+.tmanecas-porta__campo{background:transparent;border:0;color:#000102;flex:1;font-family:inherit;font-size:19px;letter-spacing:.16em;outline:none;padding:4px 2px;min-width:0}
+.tmanecas-porta__seta{align-items:center;background:transparent;border:0;color:#000102;cursor:pointer;display:flex;justify-content:center;padding:4px;transition:transform .22s ease,opacity .22s ease}
+.tmanecas-porta__seta:hover{transform:translateX(4px)}
+.tmanecas-porta__seta svg{width:26px;height:26px}
+@keyframes tmanecas-porta-nao{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
+@media (prefers-reduced-motion:reduce){.tmanecas-porta__forma.is-errada{animation:none}}
+</style>
+<script>
+(function(){
+  // A password vive aqui. Num site estatico ela e sempre legivel no
+  // codigo-fonte e os ficheiros continuam acessiveis pelo endereco directo:
+  // isto trava o visitante casual, nao e uma proteccao a serio.
+  var PASSWORD = "semba2026";
+  var CHAVE = "tmanecas-acesso";
+
+  var porta = document.getElementById("tmanecas-porta");
+  if (!porta) return;
+  // Quem ja entrou nesta sessao nao volta a ver a porta.
+  try {
+    if (sessionStorage.getItem(CHAVE) === "1") { porta.remove(); return; }
+  } catch (e) {}
+  // Fechada desde o primeiro instante: se so aparecesse no fim do
+  // carregamento, o site ficaria a vista no intervalo.
+  document.documentElement.style.setProperty("overflow", "hidden", "important");
+
+  var forma = porta.querySelector(".tmanecas-porta__forma");
+  var campo = porta.querySelector(".tmanecas-porta__campo");
+  var scrollAntes = document.body.style.overflow;
+
+  function mostrar(){
+    document.body.style.overflow = "hidden";
+    setTimeout(function(){ campo.focus(); }, 60);
+  }
+
+  function abrir(){
+    try { sessionStorage.setItem(CHAVE, "1"); } catch (e) {}
+    porta.classList.add("is-aberta");
+    document.body.style.overflow = scrollAntes;
+    document.documentElement.style.removeProperty("overflow");
+    setTimeout(function(){ porta.remove(); }, 600);
+  }
+
+  forma.addEventListener("submit", function(ev){
+    ev.preventDefault();
+    if (campo.value === PASSWORD) { abrir(); return; }
+    forma.classList.remove("is-errada");
+    void forma.offsetWidth;
+    forma.classList.add("is-errada");
+    campo.value = "";
+    campo.focus();
+  });
+
+  // So aparece depois do ecra de carregamento sair.
+  var loader = document.getElementById("tmanecas-loader");
+  if (!loader) { mostrar(); return; }
+  var vigia = setInterval(function(){
+    if (document.getElementById("tmanecas-loader")) return;
+    clearInterval(vigia);
+    mostrar();
+  }, 120);
+  setTimeout(function(){ clearInterval(vigia); mostrar(); }, 13000);
+})();
+</script>
+<!-- End TMANECAS porta -->
+
 
 	<script async src="https://events.framer.com/script?v=2" data-fid="95957f7e4e67d53527e442ce30da6665985d7b9db2fe02776e748c6368bfc33b" data-no-nt></script>
 	<!-- Start of bodyStart -->
