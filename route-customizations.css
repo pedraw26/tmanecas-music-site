@@ -72,3 +72,14 @@ a[href*="framer.com"] {
     text-align: center !important;
   }
 }
+
+/* Estas seccoes do template sao removidas por script, mas isso acontece
+   depois da pagina montar — e nesse intervalo as fotografias antigas
+   chegavam a aparecer. O CSS aplica-se na primeira pintura, antes de
+   qualquer script, por isso nunca sao vistas. */
+[data-framer-name="Section: Service"],
+[data-framer-name="Seciton: Feature Music"],
+[data-framer-name="Section: Collab"],
+[data-framer-name="Section: Feature Work"] {
+  display: none !important;
+}
