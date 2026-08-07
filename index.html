@@ -955,9 +955,9 @@
       }
 
       /* No telemovel 72px nao cabem duas palavras lado a lado. */
+      /* O espacamento acompanha o texto reduzido no telemovel. */
       @media (max-width: 809.98px) {
-        .tmanecas-player__action { font-size: clamp(32px, 8.5vw, 72px); }
-        .tmanecas-player__actions { gap: clamp(24px, 7vw, 70px); }
+        .tmanecas-player__actions { gap: clamp(14px, 4.5vw, 70px) !important; }
       }
 
       .tmanecas-player__action:hover { opacity: .72; }
@@ -1028,7 +1028,7 @@
         .tmanecas-player__duration,
         .tmanecas-player__title { font-size: clamp(22px, 6vw, 31px) !important; }
         .tmanecas-player__actions { gap: 34px; margin-top: 72px; }
-        .tmanecas-player__action { font-size: clamp(58px, 17vw, 82px); }
+        .tmanecas-player__action { font-size: clamp(34px, 13vw, 72px); }
         .tmanecas-player__dot { margin-top: 78px; }
       }
     </style>
