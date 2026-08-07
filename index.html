@@ -17,9 +17,9 @@
     <meta name="framer-search-index" content="https://framerusercontent.com/sites/1Kjex8SEmgHaR5iRKgdcmW/searchIndex-nfD215XcXAWZ.json">
     <meta name="framer-search-index-fallback" content="https://framerusercontent.com/sites/1Kjex8SEmgHaR5iRKgdcmW/searchIndex-AVuq4kI0pXI1.json">
 <link href="./favicon.svg" rel="icon" type="image/svg+xml">
-<link href="./tmanecas-hero-final.png" rel="preload" as="image" fetchpriority="high">
+
 <link href="./audio/DANGEREUX_320.mp3" rel="preload" as="audio" type="audio/mpeg">
-<link href="./route-customizations.css?v=20260806-13" rel="stylesheet">
+<link href="./route-customizations.css?v=20260807-3" rel="stylesheet">
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://pedraw26.github.io/tmanecas-music-site/">
@@ -308,6 +308,23 @@
         align-items: center !important;
       }
 
+      /* Cada letra sobe e volta, em cascata, ao passar o rato por cima. */
+      .tmanecas-letra {
+        display: inline-block;
+        transition: transform .34s cubic-bezier(.22, .61, .36, 1);
+        transition-delay: var(--atraso, 0ms);
+      }
+
+      .tmanecas-accao-letras:hover .tmanecas-letra,
+      .tmanecas-accao-letras:focus-visible .tmanecas-letra {
+        transform: translateY(-.18em);
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .tmanecas-letra { transition: none; }
+        .tmanecas-accao-letras:hover .tmanecas-letra { transform: none; }
+      }
+
       .tmanecas-palavra {
         display: inline-block;
         opacity: 0;
@@ -369,6 +386,11 @@
 
       @media (prefers-reduced-motion: reduce) {
         .tmanecas-hero-indicador span { animation: none; }
+      }
+
+      /* A fotografia antiga sai do hero: quem manda agora e o video. */
+      [data-framer-name="Section: Hero & Loading"] [data-framer-background-image-wrapper="true"] {
+        display: none !important;
       }
 
       .tmanecas-hero-video {
@@ -568,7 +590,7 @@
       [data-framer-name="Section: Hero & Loading"] {
         background-color: #050505 !important;
         background-blend-mode: normal !important;
-        background-image: linear-gradient(rgba(0, 0, 0, .12), rgba(0, 0, 0, .12)), url("./tmanecas-hero-final.png") !important;
+        background-image: none !important;
         background-position: center center !important;
         background-repeat: no-repeat !important;
         background-size: cover !important;
@@ -766,6 +788,11 @@
         text-transform: uppercase;
       }
 
+      /* No telemovel o rodape fica apertado — o aviso sai. */
+      @media (max-width: 809.98px) {
+        .tmanecas-coming-soon { display: none !important; }
+      }
+
       footer[data-framer-name="Footer"] [data-framer-name="Page & Infomation"] > [data-framer-name="Left"] {
         display: none !important;
       }
@@ -924,6 +951,13 @@
         text-decoration: none;
         text-transform: uppercase;
         transition: opacity .2s ease;
+        white-space: nowrap;
+      }
+
+      /* No telemovel 72px nao cabem duas palavras lado a lado. */
+      @media (max-width: 809.98px) {
+        .tmanecas-player__action { font-size: clamp(32px, 8.5vw, 72px); }
+        .tmanecas-player__actions { gap: clamp(24px, 7vw, 70px); }
       }
 
       .tmanecas-player__action:hover { opacity: .72; }
@@ -1113,8 +1147,7 @@
             video.setAttribute("playsinline", "");
             video.preload = "auto";
             // A fotografia continua a ser o poster: se o video falhar, fica ela.
-            video.poster = raiz + "tmanecas-hero-final.png";
-            camada.appendChild(video);
+              camada.appendChild(video);
             hero.insertBefore(camada, hero.firstChild);
           }
           if (heroBlob && video.getAttribute("src") !== heroBlob) {
@@ -1459,7 +1492,7 @@
                 `).join("")}
               </div>
               <div class="tmanecas-player__actions">
-                <a class="tmanecas-player__action" href="https://www.instagram.com/tmanecas_/" target="_blank" rel="noopener noreferrer">Order</a>
+                <a class="tmanecas-player__action" href="https://www.instagram.com/tmanecas_/" target="_blank" rel="noopener noreferrer">Instagram</a>
                 <a class="tmanecas-player__action" href="https://www.youtube.com/@tmanecas" target="_blank" rel="noopener noreferrer">Stream</a>
               </div>
             </div>`;
@@ -1477,22 +1510,23 @@
             return raiz + nome;
           };
 
-          // As duas accoes entram com a mesma revelacao da frase.
-          banner.querySelectorAll(".tmanecas-player__action").forEach((accao, i) => {
-            if (accao.dataset.tmanecasRevelar === "true") return;
-            accao.dataset.tmanecasRevelar = "true";
-            const texto = accao.textContent.trim();
-            accao.innerHTML = texto.split(" ").map((p, j) =>
-              `<span class="tmanecas-palavra" style="transition-delay:${(i * 120 + j * 45)}ms">${p}</span>`
-            ).join(" ");
-            const obs = new IntersectionObserver((es) => {
-              es.forEach((e) => {
-                if (!e.isIntersecting) return;
-                e.target.classList.add("tmanecas-frase-visivel");
-                obs.unobserve(e.target);
-              });
-            }, { threshold: 0.5 });
-            obs.observe(accao);
+          // Letra a letra: sendo palavras unicas, so assim a onda se ve.
+          // Cada letra tem o seu atraso, usado tanto na entrada como no hover.
+          banner.querySelectorAll(".tmanecas-player__action").forEach((accao) => {
+            // O texto original fica guardado: esta funcao corre a cada
+            // reconstrucao do Framer, e sem isto reprocessaria o seu proprio
+            // resultado, repetindo a palavra a cada passagem.
+            if (!accao.dataset.tmanecasTexto) {
+              accao.dataset.tmanecasTexto = accao.textContent.trim();
+            }
+            const texto = accao.dataset.tmanecasTexto;
+            const jaFeito = accao.querySelectorAll(".tmanecas-letra").length === texto.length;
+            if (jaFeito) return;
+            accao.classList.add("tmanecas-accao-letras");
+            accao.setAttribute("aria-label", texto);
+            accao.innerHTML = Array.from(texto).map((c, i) =>
+              `<span class="tmanecas-letra" style="--atraso:${i * 30}ms" aria-hidden="true">${c === " " ? "&nbsp;" : c}</span>`
+            ).join("");
           });
 
           const playableTracks = Array.from(banner.querySelectorAll(".tmanecas-player__track[data-audio]"));
@@ -1800,6 +1834,6 @@
       })();
     </script>
     <!-- End of bodyEnd -->
-<script src="./route-customizations.js?v=20260806-13"></script>
+<script src="./route-customizations.js?v=20260807-3"></script>
 </body>
 </html>

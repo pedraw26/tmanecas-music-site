@@ -96,7 +96,10 @@
 
   function updateMenuSocialLinks(root) {
     root.querySelectorAll("a[href]").forEach((link) => {
-      if (link.closest("footer") || link.dataset.tmanecasMenuSocial === "true") return;
+      // Os botoes do player apontam para as redes mas nao sao icones sociais:
+      // reescrever-lhes o texto destruia o efeito letra a letra.
+      if (link.closest("footer") || link.closest(".tmanecas-player") ||
+          link.dataset.tmanecasMenuSocial === "true") return;
       const href = link.getAttribute("href") || "";
       const match = menuSocialByHost.find(([pattern]) => pattern.test(href));
       if (!match) return;
