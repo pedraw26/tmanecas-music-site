@@ -352,6 +352,28 @@
         margin-right: auto !important;
       }
 
+      .tmanecas-orb-texto {
+        display: block;
+        transition: opacity .22s ease;
+      }
+
+      /* O texto desvanece primeiro; a bolha so encolhe depois dele sair. */
+      .tmanecas-shop-orb--play.tmanecas-orb-sai .tmanecas-orb-texto {
+        opacity: 0;
+      }
+
+      .tmanecas-shop-orb--play.tmanecas-orb-sai {
+        opacity: 0 !important;
+        transform: translate(-50%, -50%) scale(0) !important;
+        transition: opacity .36s ease .2s,
+                    transform .46s cubic-bezier(.5, 0, .75, 0) .2s !important;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .tmanecas-orb-texto,
+        .tmanecas-shop-orb--play.tmanecas-orb-sai { transition: none !important; }
+      }
+
       .tmanecas-hero-indicador {
         bottom: clamp(28px, 4vh, 56px);
         height: 46px;
@@ -1107,7 +1129,12 @@
           if (gatoArrancou) return;
           gatoArrancou = true;
           const orb = document.querySelector(".tmanecas-shop-orb--play");
-          if (orb) orb.classList.add("tmanecas-oculto");
+          if (orb) {
+            // O texto sai primeiro, a bolha encolhe a seguir.
+            orb.classList.add("tmanecas-orb-sai");
+            orb.style.setProperty("pointer-events", "none", "important");
+            setTimeout(() => orb.classList.add("tmanecas-oculto"), 700);
+          }
           const faixa = document.querySelector('.tmanecas-player__track[data-audio*="GATO_PRETO"]');
           if (faixa) faixa.click();
         }
@@ -1336,7 +1363,7 @@
               if (isPrimaryHero) {
                 orb.type = "button";
                 orb.setAttribute("aria-label", "Scroll to begin");
-                orb.textContent = "SCROLL";
+                orb.innerHTML = '<span class="tmanecas-orb-texto">SCROLL</span>';
               } else {
                 orb.href = "https://www.tiktok.com/@tmanecas";
                 orb.target = "_blank";
