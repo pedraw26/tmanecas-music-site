@@ -50,3 +50,24 @@ a[href*="framer.com"] {
 .tmanecas-release-link-disabled svg {
   cursor: default !important;
 }
+
+/* No telemovel o rodape fica centrado: a navegacao e as duas linhas de
+   baixo. Em ecra grande mantem-se encostado a esquerda, como esta. */
+@media (max-width: 809.98px) {
+  /* Os contentores tem a largura toda mas encostam o conteudo a esquerda —
+     e dai que o grupo de 97px ficasse colado a margem. */
+  footer [data-framer-name="Right"],
+  footer [data-framer-name="Page & Infomation"],
+  footer [data-framer-name="Page Listing"],
+  footer [data-framer-name="Bottom"] {
+    align-items: center !important;
+  }
+
+  footer [data-framer-name="Page Listing"] { width: 100% !important; }
+
+  footer [data-framer-name="Bottom"],
+  footer [data-framer-name="Bottom"] p,
+  footer [data-framer-name="Bottom"] div {
+    text-align: center !important;
+  }
+}

@@ -160,6 +160,25 @@
     });
   }
 
+  // No telemovel o rodape fica centrado. Aplicado por script porque o Framer
+  // define estas caixas em estilo inline e a folha de estilos nao ganha.
+  function centrarRodapeNoTelemovel(root) {
+    const estreito = window.matchMedia("(max-width: 809.98px)").matches;
+    root.querySelectorAll("footer").forEach((rodape) => {
+      ["Right", "Page & Infomation", "Top", "Bottom", "Page Listing"].forEach((nome) => {
+        rodape.querySelectorAll(`[data-framer-name="${nome}"]`).forEach((caixa) => {
+          if (estreito) {
+            caixa.style.setProperty("align-items", "center", "important");
+            if (nome === "Page Listing") caixa.style.setProperty("width", "100%", "important");
+          } else {
+            caixa.style.removeProperty("align-items");
+            if (nome === "Page Listing") caixa.style.removeProperty("width");
+          }
+        });
+      });
+    });
+  }
+
   function fixFooterWordmark(root) {
     root.querySelectorAll('[data-framer-name="Company Name"]').forEach((wordmark) => {
       const partes = wordmark.querySelectorAll("svg");
@@ -316,6 +335,7 @@
     updateMenuSocials(document);
     updateMenuSocialLinks(document);
     fixFooterSocials(document);
+    centrarRodapeNoTelemovel(document);
     fixFooterWordmark(document);
     updateHomeStatement(document);
     customizeMusic(document);
