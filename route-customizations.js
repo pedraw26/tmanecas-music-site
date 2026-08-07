@@ -52,9 +52,22 @@
     ["© 2026 AK.RECORD All rights reserved", "© 2026 TMANECAS / FORTUNA RECORDS"]
   ]);
 
+  const EMAIL_NEGOCIOS = "hello@pedraw.co.uk";
+
   function updateRouteLinks(root) {
     root.querySelectorAll("a[href]").forEach((link) => {
       const href = link.getAttribute("href") || "";
+
+      // BUSINESS abre o email em vez de uma pagina de contacto, que nunca
+      // chegou a existir e caia no 404.
+      if (href === "./contact" || href.startsWith("./contact#") ||
+          /\/contact\/?$/.test(href)) {
+        link.setAttribute("href", "mailto:" + EMAIL_NEGOCIOS);
+        link.removeAttribute("target");
+        link.setAttribute("aria-label", "Email TMANECAS — " + EMAIL_NEGOCIOS);
+        return;
+      }
+
       let nextHref = href;
       if (href === "./service" || href.startsWith("./service#")) nextHref = "./music";
       if (href === "./works" || href.startsWith("./works#")) nextHref = "./releases";
