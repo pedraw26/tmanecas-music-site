@@ -165,13 +165,17 @@
   function centrarRodapeNoTelemovel(root) {
     const estreito = window.matchMedia("(max-width: 809.98px)").matches;
     root.querySelectorAll("footer").forEach((rodape) => {
-      ["Right", "Page & Infomation", "Top", "Bottom", "Page Listing"].forEach((nome) => {
+      ["Right", "Page & Infomation", "Top", "Bottom", "Page Listing", "Social List"].forEach((nome) => {
         rodape.querySelectorAll(`[data-framer-name="${nome}"]`).forEach((caixa) => {
           if (estreito) {
             caixa.style.setProperty("align-items", "center", "important");
+            // A lista de icones e uma linha: sem isto a caixa fica centrada
+            // mas os icones amontoam-se a esquerda dentro dela.
+            if (nome === "Social List") caixa.style.setProperty("justify-content", "center", "important");
             if (nome === "Page Listing") caixa.style.setProperty("width", "100%", "important");
           } else {
             caixa.style.removeProperty("align-items");
+            if (nome === "Social List") caixa.style.removeProperty("justify-content");
             if (nome === "Page Listing") caixa.style.removeProperty("width");
           }
         });
