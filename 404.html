@@ -314,16 +314,15 @@
         position: relative;
       }
 
-      .tmanecas-player__demo {
+      /* Etiqueta ao lado do titulo — DEMO, creditos, o que a faixa precisar. */
+      .tmanecas-player__tag {
         color: rgba(255, 255, 255, .5);
         font-family: inherit;
-        /* 50% maior que antes, e centrado por baixo do titulo */
         font-size: clamp(15px, 1.58vw, 27px);
         letter-spacing: -.01em;
         line-height: 1;
         white-space: nowrap;
-        /* Fora do fluxo, encostado a direita do titulo: assim GATO PRETO
-           continua a alinhar com SAUDADE e DANGEREUX. */
+        /* Fora do fluxo: assim os titulos partilham todos o mesmo centro. */
         position: absolute;
         left: 100%;
         margin-left: .5em;
@@ -1146,9 +1145,9 @@
 
           const tracks = [
         { title: "SUBMUNDO", duration: "5:35", comingSoon: true },
-        { title: "DANGEREUX", duration: "3:18", audio: "./audio/DANGEREUX_320.mp3" },
-        { title: "SAUDADE", duration: "2:07", audio: "./audio/SAUDADE_320.mp3" },
-        { title: "GATO PRETO", duration: "1:35", audio: "./audio/GATO_PRETO.mp3", demo: true },
+        { title: "DANGEREUX", duration: "3:18", audio: "./audio/DANGEREUX_320.mp3", tag: "FEAT RIKKA" },
+        { title: "SAUDADE", duration: "2:07", audio: "./audio/SAUDADE_320.mp3", tag: "PRODUCED BY HOLLYGHOST" },
+        { title: "GATO PRETO", duration: "1:35", audio: "./audio/GATO_PRETO.mp3", tag: "DEMO" },
         { title: "FORTUNA", duration: "5:12", comingSoon: true },
         { title: "VENCER", duration: "4:00", comingSoon: true },
         { title: "RELOGIO", duration: "6:34", comingSoon: true }
@@ -1161,7 +1160,7 @@
                 ${tracks.map((track, index) => `
                   <div class="tmanecas-player__track${track.audio ? ' is-playable' : ''}${track.comingSoon ? ' is-coming-soon' : ''}" role="${track.audio ? 'button' : 'listitem'}"${track.audio ? ` tabindex="0" aria-pressed="false" data-audio="${track.audio}" aria-label="Play ${track.title}"` : ''}>
                     <span class="tmanecas-player__number">${String(index + 1).padStart(2, "0")}</span>
-                    <span class="tmanecas-player__title"><span class="tmanecas-player__titletext">${track.title}${track.demo ? '<span class="tmanecas-player__demo">DEMO</span>' : ''}</span></span>
+                    <span class="tmanecas-player__title"><span class="tmanecas-player__titletext">${track.title}${track.tag ? `<span class="tmanecas-player__tag">${track.tag}</span>` : ''}</span></span>
                     <span class="tmanecas-player__duration">${track.duration}</span>
                   </div>
                 `).join("")}
