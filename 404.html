@@ -315,16 +315,20 @@
       }
 
       .tmanecas-player__demo {
-        color: #ef4323;
+        /* O mesmo vermelho de INSTAGRAM e STREAM. */
+        color: #ef334f;
         font-family: inherit;
         /* 50% maior que antes, e centrado por baixo do titulo */
         font-size: clamp(15px, 1.58vw, 27px);
-        letter-spacing: .14em;
+        letter-spacing: -.01em;
         line-height: 1;
-        margin-right: .5em;
-        opacity: .9;
-        vertical-align: .28em;
         white-space: nowrap;
+        /* Fora do fluxo, encostado a direita do titulo: assim GATO PRETO
+           continua a alinhar com SAUDADE e DANGEREUX. */
+        position: absolute;
+        left: 100%;
+        margin-left: .5em;
+        top: .34em;
       }
 
       .tmanecas-player__title {
@@ -1156,7 +1160,7 @@
                 ${tracks.map((track, index) => `
                   <div class="tmanecas-player__track${track.audio ? ' is-playable' : ''}${track.comingSoon ? ' is-coming-soon' : ''}" role="${track.audio ? 'button' : 'listitem'}"${track.audio ? ` tabindex="0" aria-pressed="false" data-audio="${track.audio}" aria-label="Play ${track.title}"` : ''}>
                     <span class="tmanecas-player__number">${String(index + 1).padStart(2, "0")}</span>
-                    <span class="tmanecas-player__title"><span class="tmanecas-player__titletext">${track.demo ? '<span class="tmanecas-player__demo">DEMO</span>' : ''}${track.title}</span></span>
+                    <span class="tmanecas-player__title"><span class="tmanecas-player__titletext">${track.title}${track.demo ? '<span class="tmanecas-player__demo">DEMO</span>' : ''}</span></span>
                     <span class="tmanecas-player__duration">${track.duration}</span>
                   </div>
                 `).join("")}
