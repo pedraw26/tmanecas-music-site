@@ -207,7 +207,10 @@
 <!-- Porta de acesso -->
 <div id="tmanecas-porta" role="dialog" aria-modal="true" aria-label="Acesso restrito">
   <figure class="tmanecas-porta__foto">
-    <img src="./tmanecas-porta.webp" width="782" height="1400" alt="TMANECAS com um gato preto num telhado de Luanda ao pôr do sol" decoding="async">
+    <picture>
+      <source srcset="./tmanecas-porta.avif" type="image/avif">
+      <img src="./tmanecas-porta.webp" width="894" height="1600" alt="TMANECAS com um gato preto num telhado de Luanda ao pôr do sol" decoding="async">
+    </picture>
   </figure>
   <div class="tmanecas-porta__lado">
     <div class="tmanecas-porta__caixa">
@@ -232,6 +235,7 @@
 <style>
 #tmanecas-porta{position:fixed;inset:0;z-index:2147483646;display:flex;align-items:stretch;background:#ef334f;opacity:1;transition:opacity .5s ease}
 .tmanecas-porta__foto{flex:0 0 42%;margin:0;overflow:hidden;position:relative}
+.tmanecas-porta__foto picture{display:block;width:100%;height:100%}
 .tmanecas-porta__foto img{width:100%;height:100%;object-fit:cover;object-position:center top;display:block}
 .tmanecas-porta__lado{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6vh 5vw;position:relative}
 .tmanecas-porta__sociais{align-items:center;display:flex;gap:26px;justify-content:center;margin-top:auto;padding-top:6vh}
