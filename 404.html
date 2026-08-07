@@ -308,6 +308,27 @@
         align-items: center !important;
       }
 
+      .tmanecas-palavra {
+        display: inline-block;
+        opacity: 0;
+        transform: translateY(.36em);
+        transition: opacity .5s ease, transform .6s cubic-bezier(.22, .61, .36, 1);
+        will-change: opacity, transform;
+      }
+
+      .tmanecas-frase-visivel .tmanecas-palavra {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .tmanecas-palavra {
+          opacity: 1;
+          transform: none;
+          transition: none;
+        }
+      }
+
       .tmanecas-frase-centrada {
         text-align: center !important;
         margin-left: auto !important;
@@ -1024,6 +1045,34 @@
         // percurso acaba aos 7.5s porque o video desvanece a preto no fim,
         // e queremos parar no grande plano da cara.
         const HERO_FIM = 7.5;
+        let somDesbloqueado = false;
+        let gatoArrancou = false;
+
+        // Um toque silencioso no elemento de audio durante um gesto do
+        // utilizador basta para o browser passar a autorizar reproducao.
+        function desbloquearSom() {
+          if (somDesbloqueado) return;
+          const a = window.__tmanecasAudio;
+          if (!a) return;
+          const volume = a.volume;
+          a.volume = 0;
+          a.dataset.tmanecasUserStarted = "true";
+          const p = a.play();
+          if (p && p.then) {
+            p.then(() => { a.pause(); a.currentTime = 0; a.volume = volume; somDesbloqueado = true; })
+             .catch(() => { a.volume = volume; });
+          }
+        }
+
+        // No fim do percurso o circulo sai e o GATO PRETO arranca.
+        function arrancarGatoPreto() {
+          if (gatoArrancou) return;
+          gatoArrancou = true;
+          const orb = document.querySelector(".tmanecas-shop-orb--play");
+          if (orb) orb.classList.add("tmanecas-oculto");
+          const faixa = document.querySelector('.tmanecas-player__track[data-audio*="GATO_PRETO"]');
+          if (faixa) faixa.click();
+        }
         // O video consome os primeiros 80% do percurso; os restantes 20%
         // seguram o grande plano da cara, com o nome, o menu e o marquee ja
         // visiveis, antes de a pagina seguir para a seccao seguinte.
@@ -1173,6 +1222,7 @@
             heroTempo = actual;
             document.body.classList.toggle("tmanecas-hero-chegou", p > 0.93);
             document.body.classList.toggle("tmanecas-hero-mexeu", progresso() > 0.015);
+            if (progresso() > 0.995) arrancarGatoPreto();
           };
           heroScrub = requestAnimationFrame(laco);
         }
@@ -1248,8 +1298,8 @@
               orb.className = `tmanecas-shop-orb${isPrimaryHero ? " tmanecas-shop-orb--play" : ""}`;
               if (isPrimaryHero) {
                 orb.type = "button";
-                orb.setAttribute("aria-label", "Play DANGEREUX");
-                orb.textContent = "PLAY";
+                orb.setAttribute("aria-label", "Scroll to begin");
+                orb.textContent = "SCROLL";
               } else {
                 orb.href = "https://www.tiktok.com/@tmanecas";
                 orb.target = "_blank";
@@ -1265,8 +1315,15 @@
               orb.addEventListener("click", (event) => {
                 event.preventDefault();
                 event.stopPropagation();
-                const banner = root.querySelector('[data-framer-name="Banner"]');
-                banner?.tmanecasPlayDangerueux?.();
+                // Este clique e o gesto que autoriza o som: sem ele o browser
+                // recusa tocar no fim do percurso. Rolar nao conta como gesto.
+                desbloquearSom();
+                const palco = document.getElementById("tmanecas-hero-palco");
+                if (palco) {
+                  const destino = palco.getBoundingClientRect().top + window.scrollY
+                                  + (palco.offsetHeight - window.innerHeight);
+                  window.scrollTo({ top: destino, behavior: "smooth" });
+                }
               });
             }
 
@@ -1419,6 +1476,24 @@
             const raiz = at >= 0 ? location.pathname.slice(0, at + repositoryBase.length) : "/";
             return raiz + nome;
           };
+
+          // As duas accoes entram com a mesma revelacao da frase.
+          banner.querySelectorAll(".tmanecas-player__action").forEach((accao, i) => {
+            if (accao.dataset.tmanecasRevelar === "true") return;
+            accao.dataset.tmanecasRevelar = "true";
+            const texto = accao.textContent.trim();
+            accao.innerHTML = texto.split(" ").map((p, j) =>
+              `<span class="tmanecas-palavra" style="transition-delay:${(i * 120 + j * 45)}ms">${p}</span>`
+            ).join(" ");
+            const obs = new IntersectionObserver((es) => {
+              es.forEach((e) => {
+                if (!e.isIntersecting) return;
+                e.target.classList.add("tmanecas-frase-visivel");
+                obs.unobserve(e.target);
+              });
+            }, { threshold: 0.5 });
+            obs.observe(accao);
+          });
 
           const playableTracks = Array.from(banner.querySelectorAll(".tmanecas-player__track[data-audio]"));
           if (playableTracks.length) {
@@ -1583,8 +1658,33 @@
               // Quatro linhas, quebradas onde a frase respira melhor.
               if (element.dataset.tmanecasFrase !== "true") {
                 element.dataset.tmanecasFrase = "true";
-                element.innerHTML =
-                  "TMANECAS is an Angolan<br>Semba artist sharing<br>timeless rhythms<br>with the world.";
+                // Quatro linhas, e cada palavra num span proprio para poder
+                // entrar com o seu atraso — a frase revela-se palavra a
+                // palavra em vez de aparecer toda de uma vez.
+                const linhas = [
+                  "TMANECAS is an Angolan",
+                  "Semba artist sharing",
+                  "from Angola",
+                  "to the world."
+                ];
+                let n = 0;
+                element.innerHTML = linhas
+                  .map((linha) =>
+                    linha.split(" ").map((palavra) =>
+                      `<span class="tmanecas-palavra" style="transition-delay:${(n++ * 45)}ms">${palavra}</span>`
+                    ).join(" ")
+                  )
+                  .join("<br>");
+
+                // Revela-se quando entra no ecra, nao no carregamento.
+                const observador = new IntersectionObserver((entradas) => {
+                  entradas.forEach((e) => {
+                    if (!e.isIntersecting) return;
+                    e.target.classList.add("tmanecas-frase-visivel");
+                    observador.unobserve(e.target);
+                  });
+                }, { threshold: 0.35 });
+                observador.observe(element);
               }
             }
 
@@ -1615,6 +1715,10 @@
 
           // O SEMBANDO sai, e a frase que o acompanhava passa a centrada.
           root.querySelectorAll('[data-framer-name="Section: Who we are"]').forEach((seccao) => {
+            // Mesma altura do slide do GRANDA MAMBO: um ecra inteiro.
+            seccao.style.setProperty("min-height", "100vh", "important");
+            seccao.style.setProperty("justify-content", "center", "important");
+            seccao.style.setProperty("align-items", "center", "important");
             seccao.querySelectorAll("h1, h2, p").forEach((el) => {
               const t = el.textContent.replace(/\s+/g, " ").trim();
               if (t === "SEMBANDO") {
