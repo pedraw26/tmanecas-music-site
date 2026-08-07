@@ -238,15 +238,17 @@
 <style>
 #tmanecas-porta{position:fixed;inset:0;z-index:2147483646;display:flex;align-items:stretch;background:#ef334f;opacity:1;transition:opacity .5s ease}
 .tmanecas-porta__foto{flex:0 0 42%;margin:0;overflow:hidden;position:relative}
-.tmanecas-porta__foto img{width:100%;height:100%;object-fit:cover;display:block}
+.tmanecas-porta__foto img{width:100%;height:100%;object-fit:cover;object-position:center top;display:block}
 .tmanecas-porta__lado{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6vh 5vw;position:relative}
 .tmanecas-porta__editora{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",sans-serif;font-size:11px;font-style:normal;letter-spacing:.06em;line-height:1.85;margin-top:auto;opacity:.6;padding-top:6vh;text-align:center}
 .tmanecas-porta__editora strong{display:block;font-weight:600;letter-spacing:.14em;text-transform:uppercase}
 @media (max-width:809.98px){
   #tmanecas-porta{flex-direction:column}
-  .tmanecas-porta__foto{flex:0 0 34%}
-  .tmanecas-porta__lado{padding:5vh 8vw}
-  .tmanecas-porta__editora{font-size:10px;padding-top:4vh}
+  /* A foto e vertical: numa faixa baixa o corte comia-lhe a cara. */
+  .tmanecas-porta__foto{flex:0 0 52%}
+  .tmanecas-porta__lado{padding:3.5vh 8vw;justify-content:flex-start}
+  .tmanecas-porta__caixa{margin-top:2vh}
+  .tmanecas-porta__editora{font-size:10px;padding-top:3vh}
 }
 #tmanecas-porta[hidden]{display:none}
 #tmanecas-porta.is-aberta{opacity:0;pointer-events:none}
