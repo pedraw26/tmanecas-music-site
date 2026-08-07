@@ -955,9 +955,13 @@
       }
 
       /* No telemovel 72px nao cabem duas palavras lado a lado. */
-      /* O espacamento acompanha o texto reduzido no telemovel. */
+      /* No telemovel encostam-se as margens da lista: o INSTAGRAM alinha com
+         os numeros a esquerda e o STREAM com as duracoes a direita. */
       @media (max-width: 809.98px) {
-        .tmanecas-player__actions { gap: clamp(14px, 4.5vw, 70px) !important; }
+        .tmanecas-player__actions {
+          gap: clamp(14px, 4.5vw, 70px) !important;
+          justify-content: space-between !important;
+        }
       }
 
       .tmanecas-player__action:hover { opacity: .72; }
