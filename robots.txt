@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://pedraw26.github.io/tmanecas-music-site/sitemap.xml
