@@ -423,7 +423,7 @@
       .tmanecas-hero-frase {
         color: #fff;
         font-family: "League Gothic", "League Gothic Placeholder", sans-serif;
-        font-size: clamp(40px, 5.6vw, 80px);
+        font-size: clamp(32px, 8.6vw, 80px);
         font-weight: 400;
         left: 50%;
         line-height: .9;
@@ -439,6 +439,11 @@
         transition: opacity .7s ease;
         width: 100%;
         z-index: 3;
+      }
+
+      .tmanecas-hero-frase .tmanecas-linha {
+        display: block;
+        white-space: nowrap;
       }
 
       body.tmanecas-hero-scroll.tmanecas-hero-chegou .tmanecas-hero-frase {
@@ -1498,18 +1503,23 @@
             frase.className = "tmanecas-hero-frase";
             const linhas = [
               "TMANECAS is an Angolan",
-              "Semba artist sharing experiences",
-              "from Angola",
+              "Semba artist sharing",
+              "Experiences from Angola",
               "to the world."
             ];
             let n = 0;
+            // Cada linha vai num bloco que nao parte: o texto e centrado e uma
+            // palavra orfa a cair sozinha estraga o alinhamento. O tamanho da
+            // letra encolhe com o ecra para caberem inteiras.
             frase.innerHTML = linhas
               .map((linha) =>
+                `<span class="tmanecas-linha">` +
                 linha.split(" ").map((palavra) =>
                   `<span class="tmanecas-palavra" style="transition-delay:${(n++ * 45)}ms">${palavra}</span>`
-                ).join(" ")
+                ).join(" ") +
+                `</span>`
               )
-              .join("<br>");
+              .join("");
             hero.appendChild(frase);
           }
 
