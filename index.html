@@ -404,6 +404,52 @@
         body.tmanecas-hero-scroll .tmanecas-hero-marquee { transform: none !important; }
       }
 
+      /* O marquee "Semba & soul" e o seu icone sairam do hero. */
+      .tmanecas-hero-marquee { display: none !important; }
+
+      /* A frase passou a viver dentro do hero: o video acaba a preto, por
+         isso ela entra em branco sobre esse preto, no fim do percurso. A
+         seccao original so se esconde se o scrubbing chegou a arrancar —
+         assim uma falha nunca deixa a frase por dizer.
+
+         A seccao e marcada por JS em vez de a apanharmos pelo data-framer-name:
+         o conteudo de um <style> e um no de texto, e o reescritor de textos do
+         template chega a ele — o nome da seccao seria substituido aqui dentro
+         e o seletor deixaria de casar com nada. */
+      body.tmanecas-hero-scroll .tmanecas-frase-movida {
+        display: none !important;
+      }
+
+      .tmanecas-hero-frase {
+        color: #ef334f;
+        font-family: "League Gothic", "League Gothic Placeholder", sans-serif;
+        font-size: clamp(40px, 5.6vw, 80px);
+        font-weight: 400;
+        left: 50%;
+        line-height: .9;
+        margin: 0;
+        max-width: min(830px, 86vw);
+        opacity: 0;
+        pointer-events: none;
+        position: absolute;
+        text-align: center;
+        text-transform: uppercase;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        transition: opacity .7s ease;
+        width: 100%;
+        z-index: 3;
+      }
+
+      body.tmanecas-hero-scroll.tmanecas-hero-chegou .tmanecas-hero-frase {
+        opacity: 1;
+      }
+
+      body.tmanecas-hero-scroll.tmanecas-hero-chegou .tmanecas-hero-frase .tmanecas-palavra {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
       /* O pai do Framer e um flex com align-items:center, por isso um bloco
          sem largura encolhe para o conteudo. Aqui obriga-se a ocupar a
          largura toda, como as seccoes irmas. */
@@ -416,7 +462,7 @@
 
       /* A altura daqui decide quanto scroll o video consome. */
       #tmanecas-hero-espaco {
-        height: 240vh;
+        height: 500vh;
         pointer-events: none;
       }
 
@@ -1226,7 +1272,7 @@
         // palco preso, e a posicao do scroll escolhe o frame do video. O
         // percurso acaba aos 7.5s porque o video desvanece a preto no fim,
         // e queremos parar no grande plano da cara.
-        const HERO_FIM = 7.5;
+        const HERO_FIM = 14.8;
         let somDesbloqueado = false;
         let gatoArrancou = false;
 
@@ -1364,7 +1410,10 @@
           video.addEventListener("error", desistir);
 
           // Ecras estreitos levam a versao leve; nao vale 4 MB num telemovel.
-          const ficheiro = window.innerWidth <= 900 ? "scroll-1280.mp4" : "scroll-1920.mp4";
+          // A marca de versao e obrigatoria: sem ela o browser guarda o
+          // primeiro video que descarregou e ignora todas as substituicoes.
+          const VERSAO_VIDEO = "v15";
+          const ficheiro = (window.innerWidth <= 900 ? "scroll-1280.mp4" : "scroll-1920.mp4") + "?v=" + VERSAO_VIDEO;
 
           // Trazido inteiro para memoria: so assim todos os frames estao
           // disponiveis para saltar sem esperar por pedidos ao servidor.
@@ -1436,6 +1485,33 @@
           });
 
           hero.querySelectorAll(".tmanecas-hero-statement").forEach((element) => element.remove());
+
+          // A frase que vivia numa seccao propria passa a ser o desfecho do
+          // hero: o percurso acaba com a cara ja no escuro, e e sobre esse
+          // preto que ela se escreve, palavra a palavra. A seccao de origem
+          // fica marcada para o CSS a esconder.
+          const seccaoFrase = root.querySelector('[data-framer-name="Section: Who we are"]');
+          if (seccaoFrase) seccaoFrase.classList.add("tmanecas-frase-movida");
+
+          if (!hero.querySelector(".tmanecas-hero-frase")) {
+            const frase = document.createElement("p");
+            frase.className = "tmanecas-hero-frase";
+            const linhas = [
+              "TMANECAS is an Angolan",
+              "Semba artist sharing experiences",
+              "from Angola",
+              "to the world."
+            ];
+            let n = 0;
+            frase.innerHTML = linhas
+              .map((linha) =>
+                linha.split(" ").map((palavra) =>
+                  `<span class="tmanecas-palavra" style="transition-delay:${(n++ * 45)}ms">${palavra}</span>`
+                ).join(" ")
+              )
+              .join("<br>");
+            hero.appendChild(frase);
+          }
 
           if (!hero.querySelector(".tmanecas-hero-marquee")) {
             const marquee = document.createElement("div");
