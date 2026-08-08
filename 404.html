@@ -168,7 +168,7 @@
 (function(){
   // O ecra de carregamento fica intacto, apenas desligado por agora.
   // Para o trazer de volta: mudar esta linha para true.
-  var LOADER_ACTIVO = false;
+  var LOADER_ACTIVO = true;
 
   var el=document.getElementById('tmanecas-loader');
   if(!el)return;
@@ -273,8 +273,13 @@
   var PASSWORD = "gatopreto";
   var CHAVE = "tmanecas-acesso";
 
+  // Interruptor: a porta fica desligada mas o codigo permanece inteiro.
+  // Para a repor, basta voltar a true.
+  var PORTA_ACTIVA = false;
+
   var porta = document.getElementById("tmanecas-porta");
   if (!porta) return;
+  if (!PORTA_ACTIVA) { porta.remove(); return; }
   // Quem ja entrou nesta sessao nao volta a ver a porta.
   try {
     if (sessionStorage.getItem(CHAVE) === "1") { porta.remove(); return; }
@@ -1146,6 +1151,30 @@
         margin-top: clamp(72px, 5.25vw, 102px);
       }
 
+      /* As faixas sobem uma a seguir a outra quando a lista entra no ecra.
+         O atraso de cada uma vem no style inline, calculado pelo indice, e o
+         TIKTOK/STREAM fecha a sequencia. Sem a classe, a lista fica visivel:
+         se o observador nunca correr, ninguem perde a musica. */
+      .tmanecas-player__track,
+      .tmanecas-player__actions {
+        transition: opacity .62s ease, transform .74s cubic-bezier(.22, .61, .36, 1);
+      }
+
+      .tmanecas-player__tracks[data-tmanecas-entrada="por-entrar"] .tmanecas-player__track,
+      .tmanecas-player[data-tmanecas-entrada="por-entrar"] .tmanecas-player__actions {
+        opacity: 0;
+        transform: translateY(26px);
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .tmanecas-player__track,
+        .tmanecas-player__actions {
+          opacity: 1 !important;
+          transform: none !important;
+          transition: none;
+        }
+      }
+
       .tmanecas-player__action {
         appearance: none;
         background: transparent;
@@ -1747,18 +1776,67 @@
             <div class="tmanecas-player">
               <div class="tmanecas-player__tracks" role="list" aria-label="TMANECAS tracks">
                 ${tracks.map((track, index) => `
-                  <div class="tmanecas-player__track${track.audio ? ' is-playable' : ''}${track.comingSoon ? ' is-coming-soon' : ''}" role="${track.audio ? 'button' : 'listitem'}"${track.audio ? ` tabindex="0" aria-pressed="false" data-audio="${track.audio}" aria-label="Play ${track.title}"` : ''}>
+                  <div class="tmanecas-player__track${track.audio ? ' is-playable' : ''}${track.comingSoon ? ' is-coming-soon' : ''}" style="transition-delay:${index * 70}ms" role="${track.audio ? 'button' : 'listitem'}"${track.audio ? ` tabindex="0" aria-pressed="false" data-audio="${track.audio}" aria-label="Play ${track.title}"` : ''}>
                     <span class="tmanecas-player__number">${String(index + 1).padStart(2, "0")}</span>
                     <span class="tmanecas-player__title"><span class="tmanecas-player__titletext">${track.title}${track.tag ? `<span class="tmanecas-player__tag">${track.tag}</span>` : ''}</span></span>
                     <span class="tmanecas-player__duration">${track.duration}</span>
                   </div>
                 `).join("")}
               </div>
-              <div class="tmanecas-player__actions">
+              <div class="tmanecas-player__actions" style="transition-delay:${tracks.length * 70}ms">
                 <a class="tmanecas-player__action" href="https://www.tiktok.com/@tmanecas" target="_blank" rel="noopener noreferrer">TikTok</a>
                 <a class="tmanecas-player__action" href="https://www.youtube.com/@tmanecas" target="_blank" rel="noopener noreferrer">Stream</a>
               </div>
             </div>`;
+
+          // A lista arranca escondida e sobe quando entra no ecra. O estado
+          // de partida e posto aqui, por JS: assim, se algo falhar antes
+          // disto, a lista fica simplesmente visivel em vez de invisivel.
+          const listaFaixas = banner.querySelector(".tmanecas-player__tracks");
+          const painel = banner.querySelector(".tmanecas-player");
+          if (listaFaixas && painel && !painel.dataset.tmanecasEntradaLigada) {
+            painel.dataset.tmanecasEntradaLigada = "true";
+            listaFaixas.dataset.tmanecasEntrada = "por-entrar";
+            painel.dataset.tmanecasEntrada = "por-entrar";
+
+            const revelar = () => {
+              delete listaFaixas.dataset.tmanecasEntrada;
+              delete painel.dataset.tmanecasEntrada;
+            };
+
+            if (typeof IntersectionObserver === "function") {
+              const observar = () => {
+                const observador = new IntersectionObserver((entradas) => {
+                  entradas.forEach((entrada) => {
+                    if (!entrada.isIntersecting) return;
+                    revelar();
+                    observador.disconnect();
+                  });
+                }, { threshold: 0.18 });
+                observador.observe(listaFaixas);
+              };
+
+              // Este player monta-se antes do hero criar o seu espacador de
+              // varios ecras de altura. Nesse intervalo a lista esta mesmo
+              // dentro do ecra, e um observador posto aqui dispararia logo,
+              // revelando tudo antes de o visitante ter descido. Espera-se
+              // pelo espacador — ou por meio segundo, se ele nao vier.
+              let tentativas = 0;
+              const esperarPeloHero = () => {
+                if (document.getElementById("tmanecas-hero-espaco") || ++tentativas > 30) {
+                  requestAnimationFrame(observar);
+                  return;
+                }
+                setTimeout(esperarPeloHero, 16);
+              };
+              esperarPeloHero();
+              // Sem rede de seguranca por tempo: um temporizador revelaria a
+              // lista a quem ainda vai a meio da pagina, e o efeito perdia-se.
+              // Quem nao tem IntersectionObserver cai no ramo de baixo.
+            } else {
+              revelar();
+            }
+          }
 
           // O <audio> agora sobrevive a mudanca de rota, por isso o caminho tem
           // de ser absoluto: em /music/ um "./audio/x.mp3" resolveria para
