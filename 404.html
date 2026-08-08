@@ -423,12 +423,15 @@
       .tmanecas-hero-frase {
         color: #fff;
         font-family: "League Gothic", "League Gothic Placeholder", sans-serif;
-        font-size: clamp(29px, 8.6vw, 80px);
+        /* 100px e a medida do H2 "TMANECAS blends Angolan roots" — a frase
+           passa a falar no mesmo tom. O minimo fica em 29px: a linha com o
+           retrato ja roca as margens num ecra de 320px. */
+        font-size: clamp(29px, 8.6vw, 100px);
         font-weight: 400;
         left: 50%;
         line-height: .9;
         margin: 0;
-        max-width: min(830px, 86vw);
+        max-width: min(1100px, 90vw);
         opacity: 0;
         pointer-events: none;
         position: absolute;
