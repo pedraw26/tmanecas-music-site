@@ -83,3 +83,60 @@ a[href*="framer.com"] {
 [data-framer-name="Section: Feature Work"] {
   display: none !important;
 }
+
+  /* ---------------------------------------------------------------
+     Entradas partilhadas.
+
+     Estas medidas existem no <style> embutido da pagina inicial, mas
+     as rotas internas nao o tem — so tem esta folha. Repetem-se aqui
+     com os mesmos valores.
+
+     O estado escondido pede sempre DUAS coisas ao mesmo tempo: a
+     classe e o atributo, e ambos sao postos por script. Se o script
+     nao correr, ou se o Framer reescrever o className ao reconstruir
+     o elemento, o texto fica visivel. Nunca ao contrario.
+
+     Este ficheiro e externo, por isso o reescritor de textos do
+     template — que percorre nos de texto, e o conteudo de um <style>
+     embutido e um no de texto — nao lhe chega. Foi por isso que uma
+     regra escrita no <style> da pagina inicial apareceu no browser
+     com o nome da seccao trocado e deixou de casar com nada. */
+  .tmanecas-palavra {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(.36em);
+    transition: opacity .5s ease, transform .6s cubic-bezier(.22, .61, .36, 1);
+    will-change: opacity, transform;
+  }
+
+  .tmanecas-frase-visivel .tmanecas-palavra {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .tmanecas-entrada-item {
+    transition: opacity .62s ease, transform .74s cubic-bezier(.22, .61, .36, 1);
+  }
+
+  /* O !important e obrigatorio: o Framer poe "transform:none" em estilo
+     inline nalgumas destas caixas, e um estilo inline ganha a uma folha. */
+  .tmanecas-entrada-item[data-tmanecas-entrada="por-entrar"] {
+    opacity: 0 !important;
+    transform: translateY(26px) !important;
+    will-change: opacity, transform;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tmanecas-palavra {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+
+    .tmanecas-entrada-item,
+    .tmanecas-entrada-item[data-tmanecas-entrada="por-entrar"] {
+      opacity: 1 !important;
+      transform: none !important;
+      transition: none;
+    }
+  }

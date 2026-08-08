@@ -54,6 +54,93 @@
 
   const EMAIL_NEGOCIOS = "hello@pedraw.co.uk";
 
+  // ------------------------------------------------------------------
+  // Entradas.
+  //
+  // O estado escondido nasce sempre aqui, por script, nunca como valor
+  // por omissao no CSS: uma falha deste ficheiro tem de deixar o texto a
+  // vista, e nao um site em branco.
+  // ------------------------------------------------------------------
+  const semMovimento = () =>
+    typeof window.matchMedia === "function" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // As paginas do template trazem pares de variantes para larguras
+  // diferentes, e uma delas esta sempre em display:none. Escondida, nunca
+  // cruzaria o observador — ficaria invisivel para sempre, e aparecia
+  // vazia se a janela mudasse de tamanho. Essas entram ja reveladas.
+  const estaDesenhado = (elemento) => elemento.getClientRects().length > 0;
+
+  function revelarAoEntrarNoEcra(alvo, revelar, limiar) {
+    // Sem temporizador de recurso: um relogio revelaria o bloco a quem
+    // ainda vai a meio da pagina. Quem nao tem o observador revela ja.
+    if (typeof IntersectionObserver !== "function") { revelar(); return; }
+    const observador = new IntersectionObserver((entradas) => {
+      entradas.forEach((entrada) => {
+        if (!entrada.isIntersecting) return;
+        revelar();
+        observador.disconnect();
+      });
+    }, { threshold: limiar });
+    observador.observe(alvo);
+  }
+
+  // Cada palavra no seu span, com o atraso do indice. As linhas vem sempre
+  // de literais deste ficheiro — nunca de texto lido do DOM.
+  function partirEmPalavras(elemento, linhas) {
+    let n = 0;
+    elemento.innerHTML = linhas
+      .map((linha) => linha.split(" ")
+        .map((palavra) =>
+          `<span class="tmanecas-palavra" style="transition-delay:${(n++ * 45)}ms">${palavra}</span>`)
+        .join(" "))
+      .join("<br>");
+  }
+
+  // Blocos abaixo da dobra: entram quando o leitor la chega.
+  function frasePorScroll(elemento) {
+    if (semMovimento() || !estaDesenhado(elemento)) {
+      elemento.classList.add("tmanecas-frase-visivel");
+      return;
+    }
+    revelarAoEntrarNoEcra(elemento, () => elemento.classList.add("tmanecas-frase-visivel"), 0.35);
+  }
+
+  // Um titulo que ja esta a vista quando a pagina abre nao pode esperar por
+  // um observador: este dispara no mesmo quadro em que e armado, e ve-se o
+  // estado escondido a piscar. Entra sozinho.
+  //
+  // Durante a hidratacao o Framer reconstroi estes titulos mais do que uma
+  // vez; sem memoria, a frase recomecava a cada reconstrucao, aos
+  // solavancos. A memoria e por rota e esvazia-se quando a rota muda, para
+  // que home > music > home > music volte sempre a animar.
+  const memoriaEntradas = { rota: null, chaves: new Set() };
+  function jaEntrou(chave) {
+    if (memoriaEntradas.rota !== route) {
+      memoriaEntradas.rota = route;
+      memoriaEntradas.chaves.clear();
+    }
+    if (memoriaEntradas.chaves.has(chave)) return true;
+    memoriaEntradas.chaves.add(chave);
+    return false;
+  }
+
+  function fraseAoChegar(elemento, chave) {
+    // Num separador em segundo plano o requestAnimationFrame nao corre. Como
+    // este titulo esta acima da dobra, esperar por ele significaria abrir a
+    // pagina sem titulo nenhum. Escondido, aparece ja — nao ha animacao a
+    // perder porque ninguem esta a ver.
+    if (semMovimento() || document.hidden || !estaDesenhado(elemento) || jaEntrou(chave)) {
+      elemento.classList.add("tmanecas-frase-visivel");
+      return;
+    }
+    // Dois quadros: o primeiro pinta o estado escondido, o segundo arranca
+    // a transicao. Com um so, o navegador junta-os e nao ha animacao.
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      elemento.classList.add("tmanecas-frase-visivel");
+    }));
+  }
+
   function updateRouteLinks(root) {
     root.querySelectorAll("a[href]").forEach((link) => {
       const href = link.getAttribute("href") || "";
@@ -159,17 +246,16 @@
       link.setAttribute("aria-label", `TMANECAS on ${label}`);
     });
 
-    // O Spotify ainda nao tem pagina do artista: fica visivel mas inerte,
-    // como ja acontece na pagina inicial.
-    root.querySelectorAll('a[href*="open.spotify.com"]').forEach((link) => {
-      if (link.dataset.tmanecasStreamingDisabled === "true") return;
-      link.dataset.tmanecasStreamingDisabled = "true";
-      link.removeAttribute("href");
-      link.removeAttribute("target");
-      link.setAttribute("aria-disabled", "true");
-      link.setAttribute("aria-label", "Spotify — coming soon");
-      link.classList.add("tmanecas-streaming-disabled");
-      link.addEventListener("click", (event) => event.preventDefault());
+    // A pagina do artista no Spotify ja existe: o icone deixou de ser inerte.
+    // O botao do player fica de fora — esse aponta para a SAUDADE, e este
+    // laco reescrevia-o para a pagina do artista.
+    root.querySelectorAll('a[href*="open.spotify.com"]:not(.tmanecas-player__action)').forEach((link) => {
+      link.setAttribute("href", "https://open.spotify.com/artist/6Fnzjt1cFYApY2SIGGcHBG");
+      link.setAttribute("target", "_blank");
+      link.setAttribute("rel", "noopener noreferrer");
+      link.removeAttribute("aria-disabled");
+      link.setAttribute("aria-label", "TMANECAS on Spotify");
+      link.classList.remove("tmanecas-streaming-disabled");
     });
   }
 
@@ -211,12 +297,93 @@
     });
   }
 
+  // O rodape e o unico bloco que todas as rotas partilham, e chegava sempre
+  // inteiro, de uma vez. Aqui sobe por partes, com a mesma medida da lista de
+  // faixas: 26px, 70ms entre cada uma.
+  //
+  // As cinco caixas escolhidas nao se contem umas as outras — animar mae e
+  // filha empilhava os deslocamentos e o texto saltava o dobro.
+  function animarRodape(root) {
+    root.querySelectorAll("footer").forEach((rodape) => {
+      if (rodape.dataset.tmanecasEntradaLigada === "true") return;
+      const partes = [...rodape.querySelectorAll(
+        '[data-framer-name="Company Name"],' +
+        '[data-framer-name="Left"],' +
+        '[data-framer-name="Page Listing"],' +
+        '[data-framer-name="Social List"],' +
+        '.tmanecas-coming-soon,' +
+        '[data-framer-name="Bottom"]'
+      )].filter(estaDesenhado);
+      if (!partes.length) return;
+      rodape.dataset.tmanecasEntradaLigada = "true";
+      if (semMovimento()) return;
+
+      partes.forEach((parte, indice) => {
+        parte.classList.add("tmanecas-entrada-item");
+        parte.style.setProperty("transition-delay", `${indice * 70}ms`);
+        parte.dataset.tmanecasEntrada = "por-entrar";
+      });
+
+      revelarAoEntrarNoEcra(rodape, () => {
+        partes.forEach((parte) => { delete parte.dataset.tmanecasEntrada; });
+      }, 0.18);
+    });
+  }
+
+  // Os dois lancamentos sao a pagina inteira e chegavam de uma vez.
+  //
+  // Apanham-se pela caixa da imagem e sobe-se ate ao <a>: o customizeReleases
+  // arranca o href aos cartoes, por isso um seletor por href deixaria de
+  // casar depois da primeira passagem.
+  //
+  // O filtro do que esta desenhado nao e cosmetico: o template traz quatro
+  // cartoes vezes duas variantes de largura, e so dois estao visiveis. Sem
+  // ele os indices saiam trocados e os atrasos com eles.
+  function animarCartoesReleases(root) {
+    if (route !== "releases") return;
+    const cartoes = [...root.querySelectorAll('[data-framer-name="Image box"]')]
+      .map((caixa) => caixa.closest("a"))
+      .filter((cartao, indice, todos) =>
+        cartao && todos.indexOf(cartao) === indice && estaDesenhado(cartao));
+
+    cartoes.forEach((cartao, indice) => {
+      if (cartao.dataset.tmanecasEntradaLigada === "true") return;
+      cartao.dataset.tmanecasEntradaLigada = "true";
+      if (semMovimento()) return;
+      cartao.classList.add("tmanecas-entrada-item");
+      cartao.style.setProperty("transition-delay", `${(indice % 2) * 70}ms`);
+      cartao.dataset.tmanecasEntrada = "por-entrar";
+      revelarAoEntrarNoEcra(cartao, () => {
+        delete cartao.dataset.tmanecasEntrada;
+      }, 0.18);
+    });
+  }
+
   function updateHomeStatement(root) {
     root.querySelectorAll("p, h1, h2, h3").forEach((element) => {
       const text = element.textContent.replace(/\s+/g, " ").trim();
       if (!text.startsWith("TMANECAS blends Angolan roots") || element.dataset.grandaMambo === "true") return;
       element.dataset.grandaMambo = "true";
-      element.innerHTML = 'TMANECAS blends Angolan roots, live energy,<br>and a timeless Semba spirit.<br><span class="tmanecas-granda-mambo">GRANDA MAMBO</span>';
+
+      // Esta e a maior frase da pagina e chegava formada, de uma vez, no
+      // instante em que o painel branco prende. Passa a escrever-se palavra a
+      // palavra, como a do hero: sao as duas declaracoes do site e devem
+      // falar no mesmo tom.
+      //
+      // O GRANDA MAMBO mantem o seu span — tem estilo proprio — e as palavras
+      // entram dentro dele.
+      let n = 0;
+      const emPalavras = (linha) => linha.split(" ")
+        .map((palavra) =>
+          `<span class="tmanecas-palavra" style="transition-delay:${(n++ * 45)}ms">${palavra}</span>`)
+        .join(" ");
+
+      element.innerHTML =
+        emPalavras("TMANECAS blends Angolan roots, live energy,") + "<br>" +
+        emPalavras("and a timeless Semba spirit.") + "<br>" +
+        '<span class="tmanecas-granda-mambo">' + emPalavras("GRANDA MAMBO") + "</span>";
+
+      frasePorScroll(element);
     });
   }
 
@@ -227,19 +394,29 @@
     hero?.querySelectorAll("h1").forEach((heading) => {
       if (heading.dataset.tmanecasMusicCopy === "true") return;
       heading.dataset.tmanecasMusicCopy = "true";
-      heading.innerHTML = "TMANECAS<br>SEMBA LEGACY.";
+      // Este titulo do template entrava letra a letra, por efeito proprio do
+      // Framer, e reescrever o innerHTML deitava esse efeito fora — ficava a
+      // unica coisa acima da dobra desta pagina a aparecer de repente.
+      // Volta a entrar, agora palavra a palavra, como a frase da home.
+      partirEmPalavras(heading, ["TMANECAS", "SEMBA LEGACY."]);
+      fraseAoChegar(heading, "music:hero");
     });
 
     const intro = root.querySelector('[data-framer-name="Section: Intro"]');
     intro?.querySelectorAll('[data-framer-name="Row 1"] h1, [data-framer-name="Row 1"] p').forEach((heading) => {
       if (heading.dataset.tmanecasMusicCopy === "true") return;
       heading.dataset.tmanecasMusicCopy = "true";
-      heading.innerHTML = "WHERE ANGOLAN<br>RHYTHM BECOMES<br>LEGACY.";
+      partirEmPalavras(heading, ["WHERE ANGOLAN", "RHYTHM BECOMES", "LEGACY."]);
+      frasePorScroll(heading);
     });
     intro?.querySelectorAll('[data-framer-name="Row 2"] h1, [data-framer-name="Row 2"] h2').forEach((heading) => {
       if (heading.dataset.tmanecasMusicCopy === "true") return;
       heading.dataset.tmanecasMusicCopy = "true";
-      heading.innerHTML = "TMANECAS CARRIES<br>ANGOLA IN EVERY NOTE<br>SEMBA WITH SOUL,<br>MADE TO MOVE<br>GENERATIONS.";
+      partirEmPalavras(heading, [
+        "TMANECAS CARRIES", "ANGOLA IN EVERY NOTE", "SEMBA WITH SOUL,",
+        "MADE TO MOVE", "GENERATIONS."
+      ]);
+      frasePorScroll(heading);
     });
     root.querySelectorAll('[data-framer-name="Section: Why choose us"]').forEach((section) => section.remove());
   }
@@ -358,6 +535,9 @@
     customizeMusic(document);
     customizeReleases(document);
     customizeContact(document);
+    // Depois do customizeReleases: e ele que deixa os cartoes no estado final.
+    animarCartoesReleases(document);
+    animarRodape(document);
   }
 
   const observer = new MutationObserver(() => {

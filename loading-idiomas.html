@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>TMANECAS — ecrã de carregamento</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=League+Gothic&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --vermelho: #ef334f;
+    --tinta: #000102;
+    --display: "League Gothic", "Arial Narrow", sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body { height: 100%; }
+
+  body {
+    align-items: center;
+    background: var(--vermelho);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: 0;
+  }
+
+  /* O icone e a animacao sao os mesmos do site — copiados do #tmanecas-loader
+     para esta pagina se comportar exactamente como o ecra a serio. */
+  .icone {
+    animation: pulsar 1.5s ease-in-out infinite;
+    fill: var(--tinta);
+    height: auto;
+    width: clamp(84px, 11vw, 148px);
+  }
+
+  @keyframes pulsar {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: .55; transform: scale(.94); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .icone { animation: none; }
+  }
+
+  /* Os idiomas entram um pouco depois do icone, para o ecra nao chegar todo
+     de uma vez. */
+  .idiomas {
+    animation: surgir .6s ease .45s both;
+    display: flex;
+    gap: clamp(26px, 4vw, 54px);
+    margin-top: clamp(46px, 7vh, 88px);
+  }
+
+  @keyframes surgir {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .idiomas { animation: none; }
+  }
+
+  .idioma {
+    appearance: none;
+    background: transparent;
+    border: 0;
+    color: var(--tinta);
+    cursor: pointer;
+    font-family: var(--display);
+    font-size: clamp(34px, 4.4vw, 58px);
+    letter-spacing: .02em;
+    line-height: 1;
+    padding: 0 0 .1em;
+    position: relative;
+    text-transform: uppercase;
+    transition: opacity .3s ease;
+  }
+
+  /* O sublinhado cresce a partir do centro, em vez de piscar. */
+  .idioma::after {
+    background: var(--tinta);
+    bottom: 0;
+    content: "";
+    height: 3px;
+    left: 50%;
+    position: absolute;
+    transform: translateX(-50%) scaleX(0);
+    transform-origin: center;
+    transition: transform .34s cubic-bezier(.22, .61, .36, 1);
+    width: 100%;
+  }
+
+  .idioma:hover::after,
+  .idioma:focus-visible::after,
+  .idioma[aria-pressed="true"]::after {
+    transform: translateX(-50%) scaleX(1);
+  }
+
+  .idioma:not([aria-pressed="true"]) { opacity: .58; }
+  .idioma:hover, .idioma:focus-visible { opacity: 1; }
+  .idioma:focus-visible { outline: 2px solid var(--tinta); outline-offset: 8px; }
+
+  /* Rotulo do selector — escrito no proprio idioma escolhido. */
+  .nota {
+    animation: surgir .6s ease .6s both;
+    color: var(--tinta);
+    font-family: var(--display);
+    font-size: clamp(17px, 1.7vw, 23px);
+    letter-spacing: .09em;
+    margin-top: clamp(24px, 3.4vh, 40px);
+    opacity: .72;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+
+<svg class="icone" viewBox="0 0 95.37 106.46" role="img" aria-label="TMANECAS">
+  <path d="M68.3,44.16l-8.14-6.09-7.09,14.34c-1.58,3.2-2.18,6.74-3.39,10.21l15.82,12.65-1.83,4.34,7.61.31c.53.98.61,2.34.45,3.6l-18.58.03-30.48.09-4.63-.2.37-3.42c1.87-.56,3.52.5,5.44-.07l.16-2.25,7.07-.97-9.24-19.84c7.2-2.08,14.27-3.81,21.79-5.52l2.55-9.89-17.95-2.93,1.3-16.77.11-3.89,2.16-1.37.52-3.44c.01-.09.44-.24.68-.3l.92,7.22-1.85,1.92.49,13.53,11.87,1.42,4.73-1.38-.79-1.57-4.02,1.16-.59-1.11c-.16-.3.55-1.08.67-1.15l-2.19-1.48,1.67-2.13-1.58-2.55,9.6-5.87,5.55,6.28-5.62,5.03,1.35,2.69,9.14-1.17,11.5,10.27-9.8,8.7-2.3,3.63-3.77-1.32c1.46-1.9,3.06-3.1,4.56-4.68l5.75-6.03ZM55.32,79.82c.09-1.27.48-1.68,1.22-2.07l4.16-2.26-17.87-9.55,1.93-7.52-14.36,1.98,4.85,19.47,9.15-.18,10.92.13Z"/>
+</svg>
+
+<nav class="idiomas" aria-label="Escolher idioma">
+  <button class="idioma" type="button" data-idioma="pt" aria-pressed="true">PT</button>
+  <button class="idioma" type="button" data-idioma="en" aria-pressed="false">EN</button>
+  <button class="idioma" type="button" data-idioma="fr" aria-pressed="false">FR</button>
+</nav>
+
+<p class="nota" id="nota">Idioma</p>
+
+<script>
+(() => {
+  const notas = {
+    pt: "Idioma",
+    en: "Language",
+    fr: "Langue"
+  };
+  const titulos = {
+    pt: "TMANECAS — idioma",
+    en: "TMANECAS — language",
+    fr: "TMANECAS — langue"
+  };
+
+  const nota = document.getElementById("nota");
+  const botoes = [...document.querySelectorAll(".idioma")];
+
+  function escolher(idioma) {
+    botoes.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.idioma === idioma)));
+    nota.textContent = notas[idioma];
+    document.documentElement.lang = idioma;
+    document.title = titulos[idioma];
+    try { localStorage.setItem("tmanecas-idioma", idioma); } catch (e) {}
+  }
+
+  botoes.forEach((b) => b.addEventListener("click", () => escolher(b.dataset.idioma)));
+
+  // Arranca no idioma ja escolhido antes, ou no do navegador se for um dos tres.
+  let inicial = "pt";
+  try { inicial = localStorage.getItem("tmanecas-idioma") || inicial; } catch (e) {}
+  if (!notas[inicial]) inicial = "pt";
+  const doNavegador = (navigator.language || "").slice(0, 2).toLowerCase();
+  try {
+    if (!localStorage.getItem("tmanecas-idioma") && notas[doNavegador]) inicial = doNavegador;
+  } catch (e) {}
+  escolher(inicial);
+})();
+</script>
+</body>
+</html>
