@@ -423,7 +423,7 @@
       .tmanecas-hero-frase {
         color: #fff;
         font-family: "League Gothic", "League Gothic Placeholder", sans-serif;
-        font-size: clamp(32px, 8.6vw, 80px);
+        font-size: clamp(29px, 8.6vw, 80px);
         font-weight: 400;
         left: 50%;
         line-height: .9;
@@ -444,6 +444,17 @@
       .tmanecas-hero-frase .tmanecas-linha {
         display: block;
         white-space: nowrap;
+      }
+
+      /* O retrato entra no meio da linha na sua forma original, sem corte,
+         exactamente a altura das maiusculas — 0.743em nesta fonte, medido,
+         para assentar na linha de base sem sobrar nem faltar. Em em, por
+         isso encolhe com o texto no telemovel sem regra propria. */
+      .tmanecas-frase-retrato {
+        display: inline-block;
+        height: .743em;
+        vertical-align: baseline;
+        width: auto;
       }
 
       body.tmanecas-hero-scroll.tmanecas-hero-chegou .tmanecas-hero-frase {
@@ -1501,10 +1512,11 @@
           if (!hero.querySelector(".tmanecas-hero-frase")) {
             const frase = document.createElement("p");
             frase.className = "tmanecas-hero-frase";
+            // O ※ marca onde entra o retrato, no meio da terceira linha.
             const linhas = [
               "TMANECAS is an Angolan",
               "Semba artist sharing",
-              "Experiences from Angola",
+              "Experiences ※ from Angola",
               "to the world."
             ];
             let n = 0;
@@ -1514,9 +1526,18 @@
             frase.innerHTML = linhas
               .map((linha) =>
                 `<span class="tmanecas-linha">` +
-                linha.split(" ").map((palavra) =>
-                  `<span class="tmanecas-palavra" style="transition-delay:${(n++ * 45)}ms">${palavra}</span>`
-                ).join(" ") +
+                linha.split(" ").map((palavra) => {
+                  const atraso = `transition-delay:${(n++ * 45)}ms`;
+                  if (palavra === "※") {
+                    return `<span class="tmanecas-palavra" style="${atraso}">` +
+                      `<picture>` +
+                        `<source srcset="./tmanecas-frase-retrato.avif" type="image/avif">` +
+                        `<img class="tmanecas-frase-retrato" src="./tmanecas-frase-retrato.webp"` +
+                        ` width="298" height="400" alt="" aria-hidden="true" loading="lazy">` +
+                      `</picture></span>`;
+                  }
+                  return `<span class="tmanecas-palavra" style="${atraso}">${palavra}</span>`;
+                }).join(" ") +
                 `</span>`
               )
               .join("");
@@ -1710,9 +1731,9 @@
 
           const tracks = [
         { title: "SUBMUNDO", duration: "5:35", comingSoon: true },
-        { title: "DANGEREUX", duration: "3:18", audio: "./audio/DANGEREUX_320.mp3", tag: "FEAT RIKKA" },
-        { title: "SAUDADE", duration: "2:07", audio: "./audio/SAUDADE_320.mp3", tag: "PROD. BY HOLLYGHOST" },
-        { title: "GATO PRETO", duration: "1:35", audio: "./audio/GATO_PRETO.mp3", tag: "DEMO" },
+        { title: "DANGEREUX", duration: "3:18", audio: "./audio/DANGEREUX_320.mp3"  },
+        { title: "SAUDADE", duration: "2:07", audio: "./audio/SAUDADE_320.mp3"  },
+        { title: "GATO PRETO", duration: "1:35", audio: "./audio/GATO_PRETO.mp3"  },
         { title: "FORTUNA", duration: "5:12", comingSoon: true },
         { title: "VENCER", duration: "4:00", comingSoon: true },
         { title: "RELOGIO", duration: "6:34", comingSoon: true }
