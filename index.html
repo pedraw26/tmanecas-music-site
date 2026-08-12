@@ -15,7 +15,7 @@
     <meta name="description" content="TMANECAS, artista de Semba angolano. Novo semba 2026 pela Fortuna Records — SAUDADE, DANGEREUX e GATO PRETO. Música angolana de Luanda para o mundo.">
     <link href="./favicon.svg" rel="icon" type="image/svg+xml">
 
-<link href="./audio/DANGEREUX_320.mp3" rel="preload" as="audio" type="audio/mpeg">
+<link href="./audio/SAUDADE_320.mp3" rel="preload" as="audio" type="audio/mpeg">
 <link href="./route-customizations.css?v=20260808-02" rel="stylesheet">
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
@@ -1365,8 +1365,8 @@
           }
         }
 
-        // No fim do percurso o circulo sai e o GATO PRETO arranca.
-        function arrancarGatoPreto() {
+        // No fim do percurso o circulo sai e a unica faixa activa, SAUDADE, arranca.
+        function arrancarSaudade() {
           if (gatoArrancou) return;
           gatoArrancou = true;
           const orb = document.querySelector(".tmanecas-shop-orb--play");
@@ -1376,7 +1376,7 @@
             orb.style.setProperty("pointer-events", "none", "important");
             setTimeout(() => orb.classList.add("tmanecas-oculto"), 700);
           }
-          const faixa = document.querySelector('.tmanecas-player__track[data-audio*="GATO_PRETO"]');
+          const faixa = document.querySelector('.tmanecas-player__track[data-audio*="SAUDADE"]');
           if (faixa) faixa.click();
         }
         // O video consome os primeiros 80% do percurso; os restantes 20%
@@ -1530,7 +1530,7 @@
             heroTempo = actual;
             document.body.classList.toggle("tmanecas-hero-chegou", p > 0.93);
             document.body.classList.toggle("tmanecas-hero-mexeu", progresso() > 0.015);
-            if (progresso() > 0.995) arrancarGatoPreto();
+            if (progresso() > 0.995) arrancarSaudade();
           };
           heroScrub = requestAnimationFrame(laco);
         }
@@ -1832,9 +1832,9 @@
 
           const tracks = [
         { title: "SUBMUNDO", duration: "5:35", comingSoon: true },
-        { title: "DANGEREUX", duration: "3:18", audio: "./audio/DANGEREUX_320.mp3"  },
+        { title: "DANGEREUX", duration: "3:18", comingSoon: true },
         { title: "SAUDADE", duration: "2:07", audio: "./audio/SAUDADE_320.mp3"  },
-        { title: "GATO PRETO", duration: "1:35", audio: "./audio/GATO_PRETO.mp3"  },
+        { title: "GATO PRETO", duration: "1:35", comingSoon: true },
         { title: "FORTUNA", duration: "5:12", comingSoon: true },
         { title: "VENCER", duration: "4:00", comingSoon: true },
         { title: "RELOGIO", duration: "6:34", comingSoon: true }
@@ -2002,16 +2002,16 @@
               }
             };
 
-            banner.tmanecasPlayDangerueux = () => {
-              const dangereuxTrack = playableTracks.find((track) => track.dataset.audio?.includes("DANGEREUX"));
-              if (!dangereuxTrack) return Promise.resolve(false);
-              return requestPlayback(dangereuxTrack, true)
+            banner.tmanecasPlaySaudade = () => {
+              const saudadeTrack = playableTracks.find((track) => track.dataset.audio?.includes("SAUDADE"));
+              if (!saudadeTrack) return Promise.resolve(false);
+              return requestPlayback(saudadeTrack, true)
                 .then(() => {
-                  syncPlaybackState(dangereuxTrack, true);
+                  syncPlaybackState(saudadeTrack, true);
                   return true;
                 })
                 .catch(() => {
-                  syncPlaybackState(dangereuxTrack, false);
+                  syncPlaybackState(saudadeTrack, false);
                   return false;
                 });
             };
