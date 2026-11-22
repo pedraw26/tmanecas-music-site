@@ -885,9 +885,18 @@
         .tmanecas-hero-marquee__track { animation-play-state: paused; }
       }
 
+      /* A proporcao e a da propria fotografia, 1920x815. Antes havia aqui uma
+         altura com piso de 520px: em janelas onde a proporcao pedia menos do
+         que isso, o piso ganhava, a caixa ficava mais alta do que a imagem e
+         o object-fit:cover compensava cortando os lados — a 1009px de largura
+         desapareciam 108px de cada lado.
+
+         Com aspect-ratio a altura segue a largura e a fotografia aparece
+         inteira, em qualquer janela. O fim da imagem nas canelas e da propria
+         fotografia, nao do site: o ficheiro e assim. */
       .tmanecas-second-hero {
+        aspect-ratio: 1920 / 815;
         background: #0f0f0f;
-        height: clamp(520px, 42.45vw, 815px);
         overflow: hidden;
         position: relative;
         width: 100%;
